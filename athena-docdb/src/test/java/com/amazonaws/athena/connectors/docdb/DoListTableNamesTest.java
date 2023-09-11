@@ -22,8 +22,13 @@ public class DoListTableNamesTest extends RealMongoTest {
 
     private static final Logger logger = LoggerFactory.getLogger(DoListTableNamesTest.class);
 
+    /**
+     * This test assertss
+     *
+     * @throws Exception when an error occurs which implies that the tsst has failed
+     */
     @Test
-    public void doTest() throws Exception {
+    public void testThatNormalCollectionsAreListed() throws Exception {
         try (MongoClient mongoClient = MongoClients.create(mongoDBContainer.getConnectionString())) {
             mongoClient.getDatabase("bravo").getCollection("moo").insertOne(new Document());
             mongoClient.getDatabase("alpha").getCollection("foo").insertOne(new Document());
@@ -48,6 +53,36 @@ public class DoListTableNamesTest extends RealMongoTest {
 
             ListTablesResponse response = new ListTablesResponse("missing", List.of(new TableName("bravo", "moo")), null);
             ListTablesRequest request = new ListTablesRequest(TestBase.IDENTITY, UUID.randomUUID().toString(), "missing", "bravo", null, 0);
+            assertEquals(response, listTableNames.doListTables(new BlockAllocatorImpl(), request));
+        }
+    }
+
+    @Test
+    public void testThatMultiTenantCollectionsAreListed() throws Exception {
+        try (MongoClient mongoClient = MongoClients.create(mongoDBContainer.getConnectionString())) {
+            mongoClient.getDatabase("alpha").getCollection("foo_1").insertOne(new Document());
+            mongoClient.getDatabase("alpha").getCollection("foo_2").insertOne(new Document());
+
+            DoListTableNames listTableNames = new DoListTableNames() {
+
+                @Override
+                public MongoClient getOrCreateConn(MetadataRequest request) {
+                    return mongoClient;
+                }
+
+                @Override
+                public Logger getLogger() {
+                    return logger;
+                }
+
+                @Override
+                public GlobHandler getGlobHandler() {
+                    return new GlobHandler("foo_{{myid}}");
+                }
+            };
+
+            ListTablesResponse response = new ListTablesResponse("missing", List.of(new TableName("alpha", "foo_myid")), null);
+            ListTablesRequest request = new ListTablesRequest(TestBase.IDENTITY, UUID.randomUUID().toString(), "missing", "alpha", null, 0);
             assertEquals(response, listTableNames.doListTables(new BlockAllocatorImpl(), request));
         }
     }

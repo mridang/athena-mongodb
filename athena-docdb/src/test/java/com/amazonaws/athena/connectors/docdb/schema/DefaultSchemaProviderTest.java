@@ -65,7 +65,7 @@ public class DefaultSchemaProviderTest {
             public Document next() {
                 return documentIterator.next();
             }
-        });
+        }).build();
         assertEquals(1, schema.getFields().size());
 
         Map<String, Field> fields = new HashMap<>();
@@ -133,7 +133,7 @@ public class DefaultSchemaProviderTest {
             public Document next() {
                 return documentIterator.next();
             }
-        });
+        }).build();
         assertEquals(6, schema.getFields().size());
 
         Map<String, Field> fields = new HashMap<>();
@@ -190,7 +190,7 @@ public class DefaultSchemaProviderTest {
             public Document next() {
                 return documentIterator.next();
             }
-        });
+        }).build();
         assertEquals(4, schema.getFields().size());
 
         Map<String, Field> fields = new HashMap<>();

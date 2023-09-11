@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.arrow.vector.types.pojo.Schema;
 import org.bson.Document;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
+import com.amazonaws.athena.connector.lambda.data.SchemaBuilder;
 import com.amazonaws.athena.connector.lambda.handlers.GlueMetadataHandler;
 import com.amazonaws.athena.connector.lambda.metadata.GetTableRequest;
 import com.amazonaws.athena.connector.lambda.metadata.GetTableResponse;
@@ -39,13 +39,14 @@ public interface DoGetTable {
      */
     @SuppressWarnings("RedundantThrows")
     default GetTableResponse doGetTable(GetTableRequest request) throws Exception {
-        getLogger().info("Inferring schema for table[{}].", request.getTableName());
+        getLogger().info("Inferring schema for {}.", request.getTableName().getQualifiedTableName());
         MongoClient client = getOrCreateConn(request);
+
         List<String> collectionNames = Streams.stream(client.getDatabase(request.getTableName().getSchemaName()).listCollectionNames())
                 .filter(collectionName -> getGlobHandler().test(request.getTableName().getTableName(), collectionName))
                 .collect(Collectors.toList());
 
-        Schema schema = getSchemaProvider().getSchema(new ChainedMongoCursor(request.getTableName().getSchemaName(), collectionNames, client, new Function<>() {
+        SchemaBuilder schema = getSchemaProvider().getSchema(new ChainedMongoCursor(request.getTableName().getSchemaName(), collectionNames, client, new Function<>() {
             @Override
             public @NotNull FindIterable<Document> apply(@NotNull MongoCollection<Document> mongoCollection) {
                 return mongoCollection.find()
@@ -53,7 +54,9 @@ public interface DoGetTable {
                         .limit(SCHEMA_INFERENCE_NUM_DOCS);
             }
         }));
-        return new GetTableResponse(request.getCatalogName(), request.getTableName(), schema);
+
+        getGlobHandler().getFields(request.getTableName().getTableName()).forEach(schema::addStringField);
+        return new GetTableResponse(request.getCatalogName(), request.getTableName(), schema.build());
     }
 
     MongoClient getOrCreateConn(MetadataRequest request);

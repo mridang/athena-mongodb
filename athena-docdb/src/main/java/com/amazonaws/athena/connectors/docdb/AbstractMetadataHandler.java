@@ -42,13 +42,13 @@ public abstract class AbstractMetadataHandler extends GlueMetadataHandler {
      * @see GlueMetadataHandler
      */
     public GetTableResponse doGetTable(@SuppressWarnings("unused") BlockAllocator blockAllocator, GetTableRequest request) throws Exception {
-        logger.info("Getting table {}.{}", request.getTableName().getSchemaName(), request.getTableName().getTableName());
+        logger.info("Getting table {}", request.getTableName().getQualifiedTableName());
         try {
             Schema schema = super.doGetTable(blockAllocator, request, TABLE_FILTER).getSchema();
-            logger.info("Retrieved schema for {}.{} from AWS Glue", request.getTableName().getSchemaName(), request.getTableName().getTableName());
+            logger.info("Retrieved schema for {} from AWS Glue", request.getTableName().getQualifiedTableName());
             return new GetTableResponse(request.getCatalogName(), request.getTableName(), schema);
         } catch (RuntimeException ex) {
-            logger.warn("Unable to retrieve table {}.{} from AWS Glue", request.getTableName().getSchemaName(), request.getTableName().getTableName(), ex);
+            logger.warn("Unable to retrieve table {} from AWS Glue", request.getTableName().getQualifiedTableName(), ex);
             return doInferSchema(request);
         }
     }

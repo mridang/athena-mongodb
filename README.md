@@ -43,10 +43,10 @@ The driver supports the following algorithms:
 * Zlib: available in MongoDB 3.6 and later.
 * Zstandard: available in MongoDB 4.2 and later.
 
-If you specify multiple compression algorithms, the driver selects the 
+If you specify multiple compression algorithms, the driver selects the
 first one in the list supported by the instance to which it is connected.
 
-You can enable compression for the connection to your instance by specifying 
+You can enable compression for the connection to your instance by specifying
 the algorithms by adding the parameter to your connection string.
 
 `"mongodb+srv://<user>:<password>@<cluster-url>/?compressors=snappy,zlib,zstd"`

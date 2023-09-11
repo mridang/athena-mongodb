@@ -60,4 +60,39 @@ public class DoGetTableTest extends RealMongoTest {
             assertEquals(response, getTable.doGetTable(request));
         }
     }
+
+    @Test
+    public void testThatMultiTenantCollectionsAreListed() throws Exception {
+        try (MongoClient mongoClient = MongoClients.create(mongoDBContainer.getConnectionString())) {
+            mongoClient.getDatabase("alpha").getCollection("foo_1").insertOne(new Document());
+            mongoClient.getDatabase("alpha").getCollection("foo_2").insertOne(new Document());
+
+            DoGetTable getTable = new DoGetTable() {
+
+                @Override
+                public MongoClient getOrCreateConn(MetadataRequest request) {
+                    return mongoClient;
+                }
+
+                @Override
+                public Logger getLogger() {
+                    return logger;
+                }
+
+                @Override
+                public GlobHandler getGlobHandler() {
+                    return new GlobHandler("foo_{{myid}}");
+                }
+
+                @Override
+                public SchemaProvider getSchemaProvider() {
+                    return new DefaultSchemaProvider();
+                }
+            };
+
+            GetTableResponse response = new GetTableResponse("missing", new TableName("alpha", "foo_myid"), new Schema(List.of(new Field("_id", FieldType.nullable(Utf8.INSTANCE), null), new Field("myid", FieldType.nullable(Utf8.INSTANCE), null))));
+            GetTableRequest request = new GetTableRequest(TestBase.IDENTITY, UUID.randomUUID().toString(), "missing", new TableName("alpha", "foo_myid"));
+            assertEquals(response, getTable.doGetTable(request));
+        }
+    }
 }

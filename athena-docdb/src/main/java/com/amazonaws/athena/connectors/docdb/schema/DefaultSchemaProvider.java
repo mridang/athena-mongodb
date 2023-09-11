@@ -48,69 +48,8 @@ import com.amazonaws.athena.connectors.util.CloseableIterator;
  * into DocDB it will almost certainly result in no matches.
  */
 public class DefaultSchemaProvider implements SchemaProvider {
+
     private static final Logger logger = LoggerFactory.getLogger(DefaultSchemaProvider.class);
-
-    public DefaultSchemaProvider() {}
-
-    /**
-     * This method will produce an Apache Arrow Schema for the given TableName and DocumentDB connection
-     * by scanning up to the requested number of rows and using basic schema inference to determine
-     * data types.
-     *
-     * @param client         The DocumentDB connection to use for the scan operation.
-     * @param schemaName     The DocumentDB TableName for which to produce an Apache Arrow Schema.
-     * @param numObjToSample The number of records to scan as part of producing the Schema.
-     * @return An Apache Arrow Schema representing the schema of the HBase table.
-     * @note The resulting schema is a union of the schema of every row that is scanned. Presently the code does not
-     * attempt to resolve conflicts if unique field has different types across documents. It is recommend that you
-     * use AWS Glue to define a schema for tables which may have such conflicts. In the future we may enhance this method
-     * to use a reasonable default (like String) and coerce heterogeneous fields to avoid query failure but forcing
-     * explicit handling by defining Schema in AWS Glue is likely a better approach.
-     */
-    public Schema getSchema(CloseableIterator<Document> documentIterator) {
-        int docCount = 0;
-        int fieldCount = 0;
-        try (CloseableIterator<Document> docs = documentIterator) {
-            if (!docs.hasNext()) {
-                return SchemaBuilder.newBuilder().build();
-            }
-            SchemaBuilder schemaBuilder = SchemaBuilder.newBuilder();
-
-            while (docs.hasNext()) {
-                docCount++;
-                Document doc = docs.next();
-                for (String key : doc.keySet()) {
-                    fieldCount++;
-                    Field newField = getArrowField(key, doc.get(key));
-                    Types.MinorType newType = Types.getMinorTypeForArrowType(newField.getType());
-                    Field curField = schemaBuilder.getField(key);
-                    Types.MinorType curType = (curField != null) ? Types.getMinorTypeForArrowType(curField.getType()) : null;
-
-                    if (curField == null) {
-                        schemaBuilder.addField(newField);
-                    } else if (newType != curType) {
-                        //TODO: currently we resolve fields with mixed types by defaulting to VARCHAR. This is _not_ ideal
-                        logger.warn("Encountered a mixed-type field[{}] {} vs {}, defaulting to String.",
-                                key, curType, newType);
-                        schemaBuilder.addStringField(key);
-                    } else if (curType == Types.MinorType.LIST) {
-                        schemaBuilder.addField(mergeListField(key, curField, newField));
-                    } else if (curType == Types.MinorType.STRUCT) {
-                        schemaBuilder.addField(mergeStructField(key, curField, newField));
-                    }
-                }
-            }
-
-            Schema schema = schemaBuilder.build();
-            if (schema.getFields().isEmpty()) {
-                throw new RuntimeException("No columns found after scanning " + fieldCount + " values across " +
-                        docCount + " documents. Please ensure the collection is not empty and contains at least 1 supported column type.");
-            }
-            return schema;
-        } finally {
-            logger.info("Evaluated {} field values across {} documents.", fieldCount, docCount);
-        }
-    }
 
     /**
      * Used to merge LIST Field into a single Field. If called with two identical LISTs the output is essentially
@@ -231,5 +170,65 @@ public class DefaultSchemaProvider implements SchemaProvider {
         String className = (value == null || value.getClass() == null) ? "null" : value.getClass().getName();
         logger.warn("Unknown type[" + className + "] for field[" + key + "], defaulting to varchar.");
         return new Field(key, FieldType.nullable(Types.MinorType.VARCHAR.getType()), null);
+    }
+
+    /**
+     * This method will produce an Apache Arrow Schema for the given TableName and DocumentDB connection
+     * by scanning up to the requested number of rows and using basic schema inference to determine
+     * data types.
+     *
+     * @param client         The DocumentDB connection to use for the scan operation.
+     * @param schemaName     The DocumentDB TableName for which to produce an Apache Arrow Schema.
+     * @param numObjToSample The number of records to scan as part of producing the Schema.
+     * @return An Apache Arrow Schema representing the schema of the HBase table.
+     * @note The resulting schema is a union of the schema of every row that is scanned. Presently the code does not
+     * attempt to resolve conflicts if unique field has different types across documents. It is recommend that you
+     * use AWS Glue to define a schema for tables which may have such conflicts. In the future we may enhance this method
+     * to use a reasonable default (like String) and coerce heterogeneous fields to avoid query failure but forcing
+     * explicit handling by defining Schema in AWS Glue is likely a better approach.
+     */
+    public SchemaBuilder getSchema(CloseableIterator<Document> documentIterator) {
+        int docCount = 0;
+        int fieldCount = 0;
+        try (CloseableIterator<Document> docs = documentIterator) {
+            if (!docs.hasNext()) {
+                return SchemaBuilder.newBuilder();
+            }
+            SchemaBuilder schemaBuilder = SchemaBuilder.newBuilder();
+
+            while (docs.hasNext()) {
+                docCount++;
+                Document doc = docs.next();
+                for (String key : doc.keySet()) {
+                    fieldCount++;
+                    Field newField = getArrowField(key, doc.get(key));
+                    Types.MinorType newType = Types.getMinorTypeForArrowType(newField.getType());
+                    Field curField = schemaBuilder.getField(key);
+                    Types.MinorType curType = (curField != null) ? Types.getMinorTypeForArrowType(curField.getType()) : null;
+
+                    if (curField == null) {
+                        schemaBuilder.addField(newField);
+                    } else if (newType != curType) {
+                        //TODO: currently we resolve fields with mixed types by defaulting to VARCHAR. This is _not_ ideal
+                        logger.warn("Encountered a mixed-type field[{}] {} vs {}, defaulting to String.",
+                                key, curType, newType);
+                        schemaBuilder.addStringField(key);
+                    } else if (curType == Types.MinorType.LIST) {
+                        schemaBuilder.addField(mergeListField(key, curField, newField));
+                    } else if (curType == Types.MinorType.STRUCT) {
+                        schemaBuilder.addField(mergeStructField(key, curField, newField));
+                    }
+                }
+            }
+
+            Schema schema = schemaBuilder.build();
+            if (schema.getFields().isEmpty()) {
+                throw new RuntimeException("No columns found after scanning " + fieldCount + " values across " +
+                        docCount + " documents. Please ensure the collection is not empty and contains at least 1 supported column type.");
+            }
+            return schemaBuilder;
+        } finally {
+            logger.info("Evaluated {} field values across {} documents.", fieldCount, docCount);
+        }
     }
 }
