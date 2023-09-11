@@ -14,6 +14,7 @@ Other improvements include:
 
 * An improved test suite backed by a MongoDB test-container as the previous one heavily relied on mocks and stubs
 * Support for AWS Lambda Snapstart as this is now supported on Lambda.
+* Support for the ARM64 architecture as the previous implementation used x86_64.
 * Support for Zstandard and Zlib compression as this requires shared libraries such as libzstd and libgzip to be bundled.
 * Enhanced logging and improved configuration as the previous implementation did not expose tunable sampling parameters
 

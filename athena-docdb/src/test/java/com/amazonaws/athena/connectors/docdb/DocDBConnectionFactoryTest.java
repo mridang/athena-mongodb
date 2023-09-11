@@ -20,17 +20,14 @@
 package com.amazonaws.athena.connectors.docdb;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 
-public class DocDBConnectionFactoryTest {
+public class DocDBConnectionFactoryTest extends RealMongoTest {
 
     private DocDBConnectionFactory connectionFactory;
 
@@ -41,13 +38,10 @@ public class DocDBConnectionFactoryTest {
 
     @Test
     public void clientCacheHitTest() {
-        MongoClient mockConn = mock(MongoClient.class);
-        when(mockConn.listDatabaseNames()).thenReturn(null);
-
-        connectionFactory.addConnection("conStr", mockConn);
-        MongoClient conn = connectionFactory.getOrCreateConn("conStr");
-
-        assertEquals(mockConn, conn);
-        verify(mockConn, times(1)).listDatabaseNames();
+        try (MongoClient mongoClient = MongoClients.create(mongoDBContainer.getConnectionString() + "/?compressors=snappy,zlib,zstd")) {
+            connectionFactory.addConnection("conStr", mongoClient);
+            MongoClient conn = connectionFactory.getOrCreateConn("conStr");
+            assertEquals(mongoClient, conn);
+        }
     }
 }
