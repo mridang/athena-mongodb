@@ -78,11 +78,11 @@ import com.mongodb.client.MongoClients;
 
 public class DocDBRecordHandlerTest extends RealMongoTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(DocDBRecordHandlerTest.class);
     @ClassRule
     public static final LocalStackContainer localStackContainer = new LocalStackContainer(DockerImageName.parse("localstack/localstack:2.2.0-arm64"))
             .withServices(S3, SECRETSMANAGER)
             .waitingFor(new DockerHealthcheckWaitStrategy());
+    private static final Logger logger = LoggerFactory.getLogger(DocDBRecordHandlerTest.class);
     private final EncryptionKeyFactory keyFactory = new LocalKeyFactory();
     private final BlockAllocator blockAllocator = new BlockAllocatorImpl();
     private final EasyRandom easyRandom = new EasyRandom();
@@ -179,7 +179,7 @@ public class DocDBRecordHandlerTest extends RealMongoTest {
     @Test
     public void doReadRecordsSpill() throws Exception {
         try (MongoClient mongoClient = MongoClients.create("mongodb://localhost:" + mongoDBContainer.getMappedPort(27017))) {
-            String mongoUri =  "mongodb://localhost:" + mongoDBContainer.getMappedPort(27017);
+            String mongoUri = "mongodb://localhost:" + mongoDBContainer.getMappedPort(27017);
 
             new FixturesBuilder(mongoClient)
                     .withDatabase("foo", database -> database

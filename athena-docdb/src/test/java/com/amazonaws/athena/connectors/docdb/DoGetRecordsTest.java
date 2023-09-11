@@ -28,23 +28,6 @@ import dev.morphia.annotations.Id;
 
 public class DoGetRecordsTest extends RealMongoTest {
 
-    @Entity("persons")
-    public static class PersonEntity {
-
-        @SuppressWarnings({"FieldCanBeLocal", "unused"})
-        private final String name;
-        @SuppressWarnings({"FieldCanBeLocal", "unused"})
-        private final Integer age;
-        @SuppressWarnings("unused")
-        @Id
-        private ObjectId id;
-
-        public PersonEntity(String name, Integer age) {
-            this.name = name;
-            this.age = age;
-        }
-    }
-
     @SuppressWarnings("deprecation")
     @Test
     public void doTest() {
@@ -99,5 +82,22 @@ public class DoGetRecordsTest extends RealMongoTest {
         ReadRecordsRequest request = new ReadRecordsRequest(TestBase.IDENTITY, "missing", UUID.randomUUID().toString(), new TableName("foo", "Person_1"), schema, split, new Constraints(Collections.emptyMap()), Integer.MAX_VALUE, Integer.MAX_VALUE);
         getRecords.readWithConstraint(blockSpiller, request, () -> true);
         System.out.println(blockSpiller.getBlock().getRowCount());
+    }
+
+    @Entity("persons")
+    public static class PersonEntity {
+
+        @SuppressWarnings({"FieldCanBeLocal", "unused"})
+        private final String name;
+        @SuppressWarnings({"FieldCanBeLocal", "unused"})
+        private final Integer age;
+        @SuppressWarnings("unused")
+        @Id
+        private ObjectId id;
+
+        public PersonEntity(String name, Integer age) {
+            this.name = name;
+            this.age = age;
+        }
     }
 }

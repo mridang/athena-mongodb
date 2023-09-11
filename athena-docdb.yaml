@@ -100,7 +100,7 @@ Resources:
         - S3CrudPolicy:
             BucketName: !Ref SpillBucket
         #VPCAccessPolicy allows our connector to run in a VPC so that it can access your data source.
-        - VPCAccessPolicy: {}
+        - VPCAccessPolicy: { }
       VpcConfig:
         SecurityGroupIds: !Ref SecurityGroupIds
         SubnetIds: !Ref SubnetIds

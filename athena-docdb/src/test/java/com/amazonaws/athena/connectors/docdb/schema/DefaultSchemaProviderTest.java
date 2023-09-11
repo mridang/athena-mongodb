@@ -17,17 +17,13 @@
  * limitations under the License.
  * #L%
  */
-package com.amazonaws.athena.connectors.docdb;
+package com.amazonaws.athena.connectors.docdb.schema;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -37,33 +33,39 @@ import org.apache.arrow.vector.types.pojo.Schema;
 import org.bson.Document;
 import org.junit.Test;
 
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.amazonaws.athena.connectors.docdb.UnsupportedType;
+import com.amazonaws.athena.connectors.util.CloseableIterator;
 
-@SuppressWarnings({"unchecked", "rawtypes"})
-public class SchemaUtilsTest {
+public class DefaultSchemaProviderTest {
+
+    private final SchemaProvider schemaProvider = new DefaultSchemaProvider();
 
     @Test
     public void UnsupportedTypeTest() {
+
         List<Document> docs = new ArrayList<>();
         Document unsupported = new Document();
         unsupported.put("unsupported_col1", new UnsupportedType());
         docs.add(unsupported);
 
-        MongoClient mockClient = mock(MongoClient.class);
-        MongoDatabase mockDatabase = mock(MongoDatabase.class);
-        MongoCollection mockCollection = mock(MongoCollection.class);
-        FindIterable mockIterable = mock(FindIterable.class);
-        when(mockClient.getDatabase(any())).thenReturn(mockDatabase);
-        when(mockDatabase.getCollection(any())).thenReturn(mockCollection);
-        when(mockCollection.find()).thenReturn(mockIterable);
-        when(mockIterable.limit(anyInt())).thenReturn(mockIterable);
-        when(mockIterable.batchSize(anyInt())).thenReturn(mockIterable);
-        when(mockIterable.iterator()).thenReturn(new StubbingCursor(docs.iterator()));
+        Schema schema = schemaProvider.getSchema(new CloseableIterator<>() {
+            private final Iterator<Document> documentIterator = docs.iterator();
 
-        Schema schema = SchemaUtils.inferSchema(mockClient, "test", Collections.singletonList("test"), 10);
+            @Override
+            public void close() {
+                //
+            }
+
+            @Override
+            public boolean hasNext() {
+                return documentIterator.hasNext();
+            }
+
+            @Override
+            public Document next() {
+                return documentIterator.next();
+            }
+        });
         assertEquals(1, schema.getFields().size());
 
         Map<String, Field> fields = new HashMap<>();
@@ -114,18 +116,24 @@ public class SchemaUtilsTest {
         doc3.put("col5", list);
         docs.add(doc3);
 
-        MongoClient mockClient = mock(MongoClient.class);
-        MongoDatabase mockDatabase = mock(MongoDatabase.class);
-        MongoCollection mockCollection = mock(MongoCollection.class);
-        FindIterable mockIterable = mock(FindIterable.class);
-        when(mockClient.getDatabase(any())).thenReturn(mockDatabase);
-        when(mockDatabase.getCollection(any())).thenReturn(mockCollection);
-        when(mockCollection.find()).thenReturn(mockIterable);
-        when(mockIterable.limit(anyInt())).thenReturn(mockIterable);
-        when(mockIterable.batchSize(anyInt())).thenReturn(mockIterable);
-        when(mockIterable.iterator()).thenReturn(new StubbingCursor(docs.iterator()));
+        Schema schema = schemaProvider.getSchema(new CloseableIterator<>() {
+            private final Iterator<Document> documentIterator = docs.iterator();
 
-        Schema schema = SchemaUtils.inferSchema(mockClient, "test", Collections.singletonList("test"), 10);
+            @Override
+            public void close() {
+                //
+            }
+
+            @Override
+            public boolean hasNext() {
+                return documentIterator.hasNext();
+            }
+
+            @Override
+            public Document next() {
+                return documentIterator.next();
+            }
+        });
         assertEquals(6, schema.getFields().size());
 
         Map<String, Field> fields = new HashMap<>();
@@ -165,18 +173,24 @@ public class SchemaUtilsTest {
         doc2.put("col4", list2);
         docs.add(doc2);
 
-        MongoClient mockClient = mock(MongoClient.class);
-        MongoDatabase mockDatabase = mock(MongoDatabase.class);
-        MongoCollection mockCollection = mock(MongoCollection.class);
-        FindIterable mockIterable = mock(FindIterable.class);
-        when(mockClient.getDatabase(any())).thenReturn(mockDatabase);
-        when(mockDatabase.getCollection(any())).thenReturn(mockCollection);
-        when(mockCollection.find()).thenReturn(mockIterable);
-        when(mockIterable.limit(anyInt())).thenReturn(mockIterable);
-        when(mockIterable.batchSize(anyInt())).thenReturn(mockIterable);
-        when(mockIterable.iterator()).thenReturn(new StubbingCursor(docs.iterator()));
+        Schema schema = schemaProvider.getSchema(new CloseableIterator<>() {
+            private final Iterator<Document> documentIterator = docs.iterator();
 
-        Schema schema = SchemaUtils.inferSchema(mockClient, "test", Collections.singletonList("test"), 10);
+            @Override
+            public void close() {
+                //
+            }
+
+            @Override
+            public boolean hasNext() {
+                return documentIterator.hasNext();
+            }
+
+            @Override
+            public Document next() {
+                return documentIterator.next();
+            }
+        });
         assertEquals(4, schema.getFields().size());
 
         Map<String, Field> fields = new HashMap<>();

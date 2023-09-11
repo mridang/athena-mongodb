@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package com.amazonaws.athena.connectors.docdb;
+package com.amazonaws.athena.connectors.docdb.schema;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,16 +31,12 @@ import org.apache.arrow.vector.types.pojo.Schema;
 import org.bson.BsonTimestamp;
 import org.bson.Document;
 import org.bson.types.ObjectId;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.athena.connector.lambda.data.FieldBuilder;
 import com.amazonaws.athena.connector.lambda.data.SchemaBuilder;
-import com.mongodb.Function;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
+import com.amazonaws.athena.connectors.util.CloseableIterator;
 
 /**
  * Collection of helpful utilities that handle DocumentDB schema inference, type, and naming conversion.
@@ -51,10 +47,10 @@ import com.mongodb.client.MongoCollection;
  * this naive coercion does not work well if you then try to filter on the coerced field because whifen we push the filter
  * into DocDB it will almost certainly result in no matches.
  */
-public class SchemaUtils {
-    private static final Logger logger = LoggerFactory.getLogger(SchemaUtils.class);
+public class DefaultSchemaProvider implements SchemaProvider {
+    private static final Logger logger = LoggerFactory.getLogger(DefaultSchemaProvider.class);
 
-    private SchemaUtils() {}
+    public DefaultSchemaProvider() {}
 
     /**
      * This method will produce an Apache Arrow Schema for the given TableName and DocumentDB connection
@@ -71,17 +67,10 @@ public class SchemaUtils {
      * to use a reasonable default (like String) and coerce heterogeneous fields to avoid query failure but forcing
      * explicit handling by defining Schema in AWS Glue is likely a better approach.
      */
-    public static Schema inferSchema(MongoClient client, String schemaName, List<String> tableNames, int numObjToSample) {
+    public Schema getSchema(CloseableIterator<Document> documentIterator) {
         int docCount = 0;
         int fieldCount = 0;
-        try (ChainedMongoCursor docs = new ChainedMongoCursor(schemaName, tableNames, client, new Function<>() {
-            @Override
-            public @NotNull FindIterable<Document> apply(@NotNull MongoCollection<Document> mongoCollection) {
-                return mongoCollection.find()
-                        .batchSize(numObjToSample)
-                        .limit(numObjToSample);
-            }
-        })) {
+        try (CloseableIterator<Document> docs = documentIterator) {
             if (!docs.hasNext()) {
                 return SchemaBuilder.newBuilder().build();
             }

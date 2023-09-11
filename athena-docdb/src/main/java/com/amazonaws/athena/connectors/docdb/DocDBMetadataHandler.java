@@ -34,10 +34,14 @@ import com.amazonaws.athena.connector.lambda.handlers.GlueMetadataHandler;
 import com.amazonaws.athena.connector.lambda.metadata.GetSplitsRequest;
 import com.amazonaws.athena.connector.lambda.metadata.GetSplitsResponse;
 import com.amazonaws.athena.connector.lambda.metadata.GetTableLayoutRequest;
+import com.amazonaws.athena.connector.lambda.metadata.GetTableRequest;
+import com.amazonaws.athena.connector.lambda.metadata.GetTableResponse;
 import com.amazonaws.athena.connector.lambda.metadata.MetadataRequest;
 import com.amazonaws.athena.connector.lambda.metadata.glue.GlueFieldLexer;
 import com.amazonaws.athena.connector.lambda.security.EncryptionKey;
 import com.amazonaws.athena.connector.lambda.security.EncryptionKeyFactory;
+import com.amazonaws.athena.connectors.docdb.schema.DefaultSchemaProvider;
+import com.amazonaws.athena.connectors.docdb.schema.SchemaProvider;
 import com.amazonaws.services.athena.AmazonAthena;
 import com.amazonaws.services.glue.AWSGlue;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
@@ -54,7 +58,7 @@ import com.mongodb.client.MongoClient;
  * variables with values from by doing something like:
  * mongodb://${docdb_instance_1_creds}@myhostname.com:123/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0
  */
-public class DocDBMetadataHandler extends GlueMetadataHandler implements DoListSchemaNames, DoListTableNames, DoGetTable, DoGetSplits {
+public class DocDBMetadataHandler extends AbstractMetadataHandler implements DoListSchemaNames, DoListTableNames, DoGetTable, DoGetSplits {
     //Field name used to store the connection string as a property on Split objects.
     protected static final String DOCDB_CONN_STR = "connStr";
     private static final Logger logger = LoggerFactory.getLogger(DocDBMetadataHandler.class);
@@ -67,6 +71,8 @@ public class DocDBMetadataHandler extends GlueMetadataHandler implements DoListS
     //is indeed enabled for use by this connector.
     private final DocDBConnectionFactory connectionFactory;
     private final GlobHandler globHandler = new GlobHandler();
+    private final SchemaProvider schemaProvider = new DefaultSchemaProvider();
+
 
     public DocDBMetadataHandler(Map<String, String> configOptions) {
         super(SOURCE_TYPE, configOptions);
@@ -101,6 +107,11 @@ public class DocDBMetadataHandler extends GlueMetadataHandler implements DoListS
     @Override
     public GlobHandler getGlobHandler() {
         return this.globHandler;
+    }
+
+    @Override
+    public SchemaProvider getSchemaProvider() {
+        return schemaProvider;
     }
 
     /**
@@ -147,5 +158,10 @@ public class DocDBMetadataHandler extends GlueMetadataHandler implements DoListS
     @Override
     protected Field convertField(String name, String glueType) {
         return GlueFieldLexer.lex(name, glueType);
+    }
+
+    @Override
+    protected GetTableResponse doInferSchema(GetTableRequest tableRequest) throws Exception {
+        return DoGetTable.super.doGetTable(tableRequest);
     }
 }

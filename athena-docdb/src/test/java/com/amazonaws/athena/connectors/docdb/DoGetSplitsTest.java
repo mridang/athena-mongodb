@@ -32,7 +32,7 @@ public class DoGetSplitsTest extends RealMongoTest {
     @Test
     public void doGetSplits() {
         try (MongoClient mongoClient = MongoClients.create("mongodb://localhost:" + mongoDBContainer.getMappedPort(27017))) {
-            String mongoUri =  "mongodb://localhost:" + mongoDBContainer.getMappedPort(27017);
+            String mongoUri = "mongodb://localhost:" + mongoDBContainer.getMappedPort(27017);
             EncryptionKey fixedKey = new EncryptionKey("".getBytes(), "".getBytes());
 
             mongoClient.getDatabase("bravo").getCollection("moo").insertOne(new Document());

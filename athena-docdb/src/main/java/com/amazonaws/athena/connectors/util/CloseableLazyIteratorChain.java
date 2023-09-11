@@ -49,7 +49,7 @@ import org.apache.commons.collections4.iterators.EmptyIterator;
  *
  * @since 4.0
  */
-public abstract class CloseableLazyIteratorChain<E> implements Iterator<E>, AutoCloseable {
+public abstract class CloseableLazyIteratorChain<E> implements CloseableIterator<E> {
 
     /**
      * The number of times {@link #next()} was already called.
