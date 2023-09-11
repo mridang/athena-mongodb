@@ -14,7 +14,7 @@ Other improvements include:
 
 * An improved test suite backed by a MongoDB test-container as the previous one heavily relied on mocks and stubs
 * Support for AWS Lambda Snapstart as this is now supported on Lambda.
-* Support for ZSTD and Gzip compression as this requires shared libraries such as libzstd and libgzip to be bundled.
+* Support for Zstandard and Zlib compression as this requires shared libraries such as libzstd and libgzip to be bundled.
 * Enhanced logging and improved configuration as the previous implementation did not expose tunable sampling parameters
 
 ## Deploying
@@ -30,6 +30,25 @@ The template when deployed will create a Lambda function which can then be
 configured for use by AWS Athena. More information can be found here:
 
 https://docs.aws.amazon.com/athena/latest/ug/connect-to-a-data-source-lambda.html
+
+#### Enabling compression
+
+You can enable a driver option to compress messages which reduces the amount of
+data passed over the network between the replica set and your application.
+
+The driver supports the following algorithms:
+
+* Snappy: available in MongoDB 3.4 and later.
+* Zlib: available in MongoDB 3.6 and later.
+* Zstandard: available in MongoDB 4.2 and later.
+
+If you specify multiple compression algorithms, the driver selects the 
+first one in the list supported by the instance to which it is connected.
+
+You can enable compression for the connection to your instance by specifying 
+the algorithms by adding the parameter to your connection string.
+
+`"mongodb+srv://<user>:<password>@<cluster-url>/?compressors=snappy,zlib,zstd"`
 
 #### Parameters
 

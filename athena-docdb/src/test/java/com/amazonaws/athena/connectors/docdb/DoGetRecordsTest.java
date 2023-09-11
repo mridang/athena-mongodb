@@ -28,10 +28,12 @@ import dev.morphia.annotations.Id;
 
 public class DoGetRecordsTest extends RealMongoTest {
 
+    private static final Logger logger = LoggerFactory.getLogger(DoGetRecordsTest.class);
+
     @SuppressWarnings("deprecation")
     @Test
     public void doTest() {
-        MongoClient mongoClient = MongoClients.create("mongodb://localhost:" + mongoDBContainer.getMappedPort(27017));
+        MongoClient mongoClient = MongoClients.create(mongoDBContainer.getConnectionString());
 
         new FixturesBuilder(mongoClient)
                 .withDatabase("foo", database -> database
@@ -69,7 +71,7 @@ public class DoGetRecordsTest extends RealMongoTest {
 
             @Override
             public Logger getLogger() {
-                return LoggerFactory.getLogger(DoListTableNamesTest.class);
+                return logger;
             }
 
             @Override

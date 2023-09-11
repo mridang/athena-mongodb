@@ -20,9 +20,11 @@ import com.mongodb.client.MongoClients;
 
 public class DoListTableNamesTest extends RealMongoTest {
 
+    private static final Logger logger = LoggerFactory.getLogger(DoListTableNamesTest.class);
+
     @Test
     public void doTest() throws Exception {
-        try (MongoClient mongoClient = MongoClients.create("mongodb://localhost:" + mongoDBContainer.getMappedPort(27017))) {
+        try (MongoClient mongoClient = MongoClients.create(mongoDBContainer.getConnectionString())) {
             mongoClient.getDatabase("bravo").getCollection("moo").insertOne(new Document());
             mongoClient.getDatabase("alpha").getCollection("foo").insertOne(new Document());
 
@@ -35,7 +37,7 @@ public class DoListTableNamesTest extends RealMongoTest {
 
                 @Override
                 public Logger getLogger() {
-                    return LoggerFactory.getLogger(DoListTableNamesTest.class);
+                    return logger;
                 }
 
                 @Override

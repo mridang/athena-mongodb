@@ -31,8 +31,7 @@ public class DoGetSplitsTest extends RealMongoTest {
 
     @Test
     public void doGetSplits() {
-        try (MongoClient mongoClient = MongoClients.create("mongodb://localhost:" + mongoDBContainer.getMappedPort(27017))) {
-            String mongoUri = "mongodb://localhost:" + mongoDBContainer.getMappedPort(27017);
+        try (MongoClient mongoClient = MongoClients.create(mongoDBContainer.getConnectionString())) {
             EncryptionKey fixedKey = new EncryptionKey("".getBytes(), "".getBytes());
 
             mongoClient.getDatabase("bravo").getCollection("moo").insertOne(new Document());
@@ -41,7 +40,7 @@ public class DoGetSplitsTest extends RealMongoTest {
 
                 @Override
                 public String getConnStr(MetadataRequest request) {
-                    return mongoUri;
+                    return mongoDBContainer.getConnectionString();
                 }
 
                 @Override
@@ -57,7 +56,7 @@ public class DoGetSplitsTest extends RealMongoTest {
 
             Constraints constraints = new Constraints(Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), DEFAULT_NO_LIMIT);
             Block partition = BlockUtils.newBlock(new BlockAllocatorImpl(), PARTITION_ID, Types.MinorType.INT.getType(), 0);
-            GetSplitsResponse response = new GetSplitsResponse("missing", Set.of(Split.newBuilder(null, fixedKey).add(DOCDB_CONN_STR, mongoUri).build()), null);
+            GetSplitsResponse response = new GetSplitsResponse("missing", Set.of(Split.newBuilder(null, fixedKey).add(DOCDB_CONN_STR, mongoDBContainer.getConnectionString()).build()), null);
             GetSplitsRequest request = new GetSplitsRequest(TestBase.IDENTITY, UUID.randomUUID().toString(), "missing", new TableName("bravo", "moo"), partition, Collections.emptyList(), constraints, null);
             assertEquals(response, getSplits.doGetSplits(new BlockAllocatorImpl(), request));
         }

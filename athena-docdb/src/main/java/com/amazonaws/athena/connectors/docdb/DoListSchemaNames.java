@@ -3,6 +3,8 @@ package com.amazonaws.athena.connectors.docdb;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+
 import com.amazonaws.athena.connector.lambda.data.BlockAllocator;
 import com.amazonaws.athena.connector.lambda.handlers.GlueMetadataHandler;
 import com.amazonaws.athena.connector.lambda.metadata.ListSchemasRequest;
@@ -20,16 +22,21 @@ public interface DoListSchemaNames {
      */
     @SuppressWarnings({"RedundantThrows", "unused"})
     default ListSchemasResponse doListSchemaNames(BlockAllocator blockAllocator, ListSchemasRequest request) throws Exception {
-        List<String> schemas = new ArrayList<>();
+        getLogger().info("Listing all schemas");
+        List<String> collectionNames = new ArrayList<>();
         MongoClient client = getOrCreateConn(request);
         try (MongoCursor<String> itr = client.listDatabaseNames().iterator()) {
             while (itr.hasNext()) {
-                schemas.add(itr.next());
+                String collectionName = itr.next();
+                collectionNames.add(collectionName);
+                getLogger().info("Discovered schema {}", collectionName);
             }
 
-            return new ListSchemasResponse(request.getCatalogName(), schemas);
+            return new ListSchemasResponse(request.getCatalogName(), collectionNames);
         }
     }
 
     MongoClient getOrCreateConn(MetadataRequest request);
+
+    Logger getLogger();
 }
