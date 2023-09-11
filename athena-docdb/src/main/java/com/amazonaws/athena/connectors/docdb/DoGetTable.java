@@ -28,7 +28,8 @@ public interface DoGetTable {
      *
      * @see GlueMetadataHandler
      */
-    default GetTableResponse doGetTable(BlockAllocator blockAllocator, GetTableRequest request) throws Exception {
+    @SuppressWarnings("RedundantThrows")
+    default GetTableResponse doGetTable(@SuppressWarnings("unused") BlockAllocator blockAllocator, GetTableRequest request) throws Exception {
         getLogger().info("enter {}", request.getTableName());
         Schema schema = null;
 //        try {

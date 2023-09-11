@@ -142,9 +142,6 @@ public class DocDBRecordHandlerTest extends RealMongoTest {
                     .withDatabase("foo", database -> database
                             .withCollection("Person_1", PersonEntity.class, () ->
                                     easyRandom.objects(PersonEntity.class, 10000)
-                                            .collect(Collectors.toList()))
-                            .withCollection("Person_2", PersonEntity.class, () ->
-                                    easyRandom.objects(PersonEntity.class, 10000)
                                             .collect(Collectors.toList())));
 
             Map<String, ValueSet> constraintsMap = new HashMap<>();
@@ -174,7 +171,7 @@ public class DocDBRecordHandlerTest extends RealMongoTest {
             ReadRecordsResponse response = (ReadRecordsResponse) rawResponse;
             logger.info("doReadRecordsNoSpill: rows[{}]", response.getRecordCount());
 
-            assertEquals(2, response.getRecords().getRowCount());
+            assertEquals(10000, response.getRecords().getRowCount());
             logger.info("doReadRecordsNoSpill: {}", BlockUtils.rowToString(response.getRecords(), 0));
         }
     }
@@ -187,10 +184,7 @@ public class DocDBRecordHandlerTest extends RealMongoTest {
             new FixturesBuilder(mongoClient)
                     .withDatabase("foo", database -> database
                             .withCollection("Person_1", PersonEntity.class, () ->
-                                    easyRandom.objects(PersonEntity.class, 10000)
-                                            .collect(Collectors.toList()))
-                            .withCollection("Person_2", PersonEntity.class, () ->
-                                    easyRandom.objects(PersonEntity.class, 10000)
+                                    easyRandom.objects(PersonEntity.class, 100000)
                                             .collect(Collectors.toList())));
 
             Map<String, ValueSet> constraintsMap = new HashMap<>();
@@ -209,7 +203,7 @@ public class DocDBRecordHandlerTest extends RealMongoTest {
                     schemaForRead,
                     Split.newBuilder(splitLoc, keyFactory.create()).add(DOCDB_CONN_STR, mongoUri).build(),
                     new Constraints(constraintsMap, Collections.emptyList(), Collections.emptyList(), DEFAULT_NO_LIMIT),
-                    1_500_000L, //~1.5MB so we should see some spill
+                    1000L, //~1.5MB so we should see some spill
                     0L
             );
             RecordResponse rawResponse = handler.doReadRecords(blockAllocator, request);
