@@ -3,7 +3,6 @@ package com.amazonaws.athena.connectors.docdb;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.bson.Document;
 import org.junit.Test;
@@ -17,7 +16,7 @@ import com.amazonaws.athena.connector.lambda.metadata.MetadataRequest;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
-public class DoListSchemaNamesTest extends RealMongoTest {
+public class DoListSchemaNamesTest extends RealMongoTest implements AthenaTest {
 
     private static final Logger logger = LoggerFactory.getLogger(DoListSchemaNamesTest.class);
 
@@ -39,7 +38,7 @@ public class DoListSchemaNamesTest extends RealMongoTest {
             };
 
             ListSchemasResponse response = new ListSchemasResponse("missing", List.of("admin", "bravo", "config", "local"));
-            assertEquals(response, listSchemaNames.doListSchemaNames(new BlockAllocatorImpl(), new ListSchemasRequest(TestBase.IDENTITY, UUID.randomUUID().toString(), "missing")));
+            assertEquals(response, listSchemaNames.doListSchemaNames(new BlockAllocatorImpl(), new ListSchemasRequest(getIdentity(), generateId(), "missing")));
         }
     }
 }

@@ -3,7 +3,6 @@ package com.amazonaws.athena.connectors.docdb;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.arrow.vector.types.Types;
 import org.apache.arrow.vector.types.pojo.Schema;
@@ -26,7 +25,7 @@ import com.mongodb.client.MongoClients;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
 
-public class DoGetRecordsTest extends RealMongoTest {
+public class DoGetRecordsTest extends RealMongoTest implements AthenaTest {
 
     private static final Logger logger = LoggerFactory.getLogger(DoGetRecordsTest.class);
 
@@ -81,7 +80,7 @@ public class DoGetRecordsTest extends RealMongoTest {
         };
 
         BlockSpiller blockSpiller = new InMemorySingleBlockSpiller(schema, ConstraintEvaluator.emptyEvaluator());
-        ReadRecordsRequest request = new ReadRecordsRequest(TestBase.IDENTITY, "missing", UUID.randomUUID().toString(), new TableName("foo", "Person_1"), schema, split, new Constraints(Collections.emptyMap()), Integer.MAX_VALUE, Integer.MAX_VALUE);
+        ReadRecordsRequest request = new ReadRecordsRequest(getIdentity(), "missing", generateId(), new TableName("foo", "Person_1"), schema, split, new Constraints(Collections.emptyMap()), Integer.MAX_VALUE, Integer.MAX_VALUE);
         getRecords.readWithConstraint(blockSpiller, request, () -> true);
         System.out.println(blockSpiller.getBlock().getRowCount());
     }

@@ -7,7 +7,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Collections;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.arrow.vector.types.Types;
 import org.bson.Document;
@@ -27,7 +26,7 @@ import com.amazonaws.athena.connector.lambda.security.EncryptionKey;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
-public class DoGetSplitsTest extends RealMongoTest {
+public class DoGetSplitsTest extends RealMongoTest implements AthenaTest {
 
     @Test
     public void doGetSplits() {
@@ -57,7 +56,7 @@ public class DoGetSplitsTest extends RealMongoTest {
             Constraints constraints = new Constraints(Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), DEFAULT_NO_LIMIT);
             Block partition = BlockUtils.newBlock(new BlockAllocatorImpl(), PARTITION_ID, Types.MinorType.INT.getType(), 0);
             GetSplitsResponse response = new GetSplitsResponse("missing", Set.of(Split.newBuilder(null, fixedKey).add(DOCDB_CONN_STR, mongoDBContainer.getConnectionString()).build()), null);
-            GetSplitsRequest request = new GetSplitsRequest(TestBase.IDENTITY, UUID.randomUUID().toString(), "missing", new TableName("bravo", "moo"), partition, Collections.emptyList(), constraints, null);
+            GetSplitsRequest request = new GetSplitsRequest(getIdentity(), generateId(), "missing", new TableName("bravo", "moo"), partition, Collections.emptyList(), constraints, null);
             assertEquals(response, getSplits.doGetSplits(new BlockAllocatorImpl(), request));
         }
     }

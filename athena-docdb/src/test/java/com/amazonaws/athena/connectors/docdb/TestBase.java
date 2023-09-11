@@ -19,11 +19,6 @@
  */
 package com.amazonaws.athena.connectors.docdb;
 
-import java.util.Collections;
-
-import com.amazonaws.athena.connector.lambda.security.FederatedIdentity;
-
 public class TestBase {
-    protected static final FederatedIdentity IDENTITY = new FederatedIdentity("arn", "account", Collections.emptyMap(), Collections.emptyList());
     protected static final String PARTITION_ID = "partition_id";
 }

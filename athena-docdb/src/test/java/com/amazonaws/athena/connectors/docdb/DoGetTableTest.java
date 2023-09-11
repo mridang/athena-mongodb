@@ -3,7 +3,6 @@ package com.amazonaws.athena.connectors.docdb;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.arrow.vector.types.pojo.ArrowType.Utf8;
 import org.apache.arrow.vector.types.pojo.Field;
@@ -23,7 +22,7 @@ import com.amazonaws.athena.connectors.docdb.schema.SchemaProvider;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
-public class DoGetTableTest extends RealMongoTest {
+public class DoGetTableTest extends RealMongoTest implements AthenaTest {
 
     private static final Logger logger = LoggerFactory.getLogger(DoGetTableTest.class);
 
@@ -56,7 +55,7 @@ public class DoGetTableTest extends RealMongoTest {
             };
 
             GetTableResponse response = new GetTableResponse("missing", new TableName("bravo", "moo"), new Schema(List.of(new Field("_id", FieldType.nullable(Utf8.INSTANCE), null))));
-            GetTableRequest request = new GetTableRequest(TestBase.IDENTITY, UUID.randomUUID().toString(), "missing", new TableName("bravo", "moo"));
+            GetTableRequest request = new GetTableRequest(getIdentity(), generateId(), "missing", new TableName("bravo", "moo"));
             assertEquals(response, getTable.doGetTable(request));
         }
     }
@@ -91,7 +90,7 @@ public class DoGetTableTest extends RealMongoTest {
             };
 
             GetTableResponse response = new GetTableResponse("missing", new TableName("alpha", "foo_myid"), new Schema(List.of(new Field("_id", FieldType.nullable(Utf8.INSTANCE), null), new Field("myid", FieldType.nullable(Utf8.INSTANCE), null))));
-            GetTableRequest request = new GetTableRequest(TestBase.IDENTITY, UUID.randomUUID().toString(), "missing", new TableName("alpha", "foo_myid"));
+            GetTableRequest request = new GetTableRequest(getIdentity(), generateId(), "missing", new TableName("alpha", "foo_myid"));
             assertEquals(response, getTable.doGetTable(request));
         }
     }

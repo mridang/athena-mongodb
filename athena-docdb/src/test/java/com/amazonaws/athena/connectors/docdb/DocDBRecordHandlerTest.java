@@ -21,7 +21,6 @@ package com.amazonaws.athena.connectors.docdb;
 
 import static com.amazonaws.athena.connector.lambda.domain.predicate.Constraints.DEFAULT_NO_LIMIT;
 import static com.amazonaws.athena.connectors.docdb.DocDBMetadataHandler.DOCDB_CONN_STR;
-import static com.amazonaws.athena.connectors.docdb.TestBase.IDENTITY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -31,7 +30,6 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.arrow.vector.types.pojo.ArrowType;
@@ -76,7 +74,7 @@ import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
-public class DocDBRecordHandlerTest extends RealMongoTest {
+public class DocDBRecordHandlerTest extends RealMongoTest implements AthenaTest {
 
     @ClassRule
     public static final LocalStackContainer localStackContainer = new LocalStackContainer(DockerImageName.parse("localstack/localstack:2.2.0-arm64"))
@@ -147,14 +145,14 @@ public class DocDBRecordHandlerTest extends RealMongoTest {
 
             S3SpillLocation splitLoc = S3SpillLocation.newBuilder()
                     .withBucket("myspill")
-                    .withSplitId(UUID.randomUUID().toString())
-                    .withQueryId(UUID.randomUUID().toString())
+                    .withSplitId(generateId())
+                    .withQueryId(generateId())
                     .withIsDirectory(true)
                     .build();
 
-            ReadRecordsRequest request = new ReadRecordsRequest(IDENTITY,
+            ReadRecordsRequest request = new ReadRecordsRequest(getIdentity(),
                     "default",
-                    UUID.randomUUID().toString(),
+                    generateId(),
                     new TableName("foo", "Person_1"),
                     schemaForRead,
                     Split.newBuilder(splitLoc, keyFactory.create()).add(DOCDB_CONN_STR, mongoDBContainer.getConnectionString()).build(),
@@ -189,14 +187,14 @@ public class DocDBRecordHandlerTest extends RealMongoTest {
 
             S3SpillLocation splitLoc = S3SpillLocation.newBuilder()
                     .withBucket("myspill")
-                    .withSplitId(UUID.randomUUID().toString())
-                    .withQueryId(UUID.randomUUID().toString())
+                    .withSplitId(generateId())
+                    .withQueryId(generateId())
                     .withIsDirectory(true)
                     .build();
 
-            ReadRecordsRequest request = new ReadRecordsRequest(IDENTITY,
+            ReadRecordsRequest request = new ReadRecordsRequest(getIdentity(),
                     "default",
-                    UUID.randomUUID().toString(),
+                    generateId(),
                     new TableName("foo", "Person_1"),
                     schemaForRead,
                     Split.newBuilder(splitLoc, keyFactory.create()).add(DOCDB_CONN_STR, mongoDBContainer.getConnectionString()).build(),

@@ -3,7 +3,6 @@ package com.amazonaws.athena.connectors.docdb;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.bson.Document;
 import org.junit.Test;
@@ -18,7 +17,7 @@ import com.amazonaws.athena.connector.lambda.metadata.MetadataRequest;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
-public class DoListTableNamesTest extends RealMongoTest {
+public class DoListTableNamesTest extends RealMongoTest implements AthenaTest {
 
     private static final Logger logger = LoggerFactory.getLogger(DoListTableNamesTest.class);
 
@@ -52,7 +51,7 @@ public class DoListTableNamesTest extends RealMongoTest {
             };
 
             ListTablesResponse response = new ListTablesResponse("missing", List.of(new TableName("bravo", "moo")), null);
-            ListTablesRequest request = new ListTablesRequest(TestBase.IDENTITY, UUID.randomUUID().toString(), "missing", "bravo", null, 0);
+            ListTablesRequest request = new ListTablesRequest(getIdentity(), generateId(), "missing", "bravo", null, 0);
             assertEquals(response, listTableNames.doListTables(new BlockAllocatorImpl(), request));
         }
     }
@@ -82,7 +81,7 @@ public class DoListTableNamesTest extends RealMongoTest {
             };
 
             ListTablesResponse response = new ListTablesResponse("missing", List.of(new TableName("alpha", "foo_myid")), null);
-            ListTablesRequest request = new ListTablesRequest(TestBase.IDENTITY, UUID.randomUUID().toString(), "missing", "alpha", null, 0);
+            ListTablesRequest request = new ListTablesRequest(getIdentity(), generateId(), "missing", "alpha", null, 0);
             assertEquals(response, listTableNames.doListTables(new BlockAllocatorImpl(), request));
         }
     }
