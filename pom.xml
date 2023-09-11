@@ -30,7 +30,7 @@
     <licenses>
         <license>
             <name>Apache License 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -245,9 +245,12 @@
                             </execution>
                         </executions>
                     </plugin>
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
+                        <!--suppress MavenModelInspection -->
                         <artifactId>maven-source-plugin</artifactId>
+                        <!--suppress MavenModelInspection -->
                         <version>3.3.0</version>
                         <executions>
                             <execution>

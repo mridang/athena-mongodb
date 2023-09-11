@@ -19,6 +19,8 @@
  */
 package com.amazonaws.athena.connectors.docdb;
 
+import java.util.Map;
+
 import org.apache.arrow.util.VisibleForTesting;
 import org.apache.arrow.vector.types.pojo.Field;
 import org.slf4j.Logger;
@@ -58,19 +60,16 @@ public class DocDBMetadataHandler extends GlueMetadataHandler implements DoListS
     private static final Logger logger = LoggerFactory.getLogger(DocDBMetadataHandler.class);
     //Used to denote the 'type' of this connector for diagnostic purposes.
     private static final String SOURCE_TYPE = "documentdb";
-    //The Env variable name used to store the default DocDB connection string if no catalog specific
+    //The Env variable name used to store the default DocDB connection string if no catalogue-specific
     //env variable is set.
     private static final String DEFAULT_DOCDB = "default_docdb";
     //The Glue table property that indicates that a table matching the name of an DocDB table
     //is indeed enabled for use by this connector.
-    private static final String DOCDB_METADATA_FLAG = "docdb-metadata-flag";
-    private final AWSGlue glue;
     private final DocDBConnectionFactory connectionFactory;
     private final GlobHandler globHandler = new GlobHandler();
 
-    public DocDBMetadataHandler(java.util.Map<String, String> configOptions) {
+    public DocDBMetadataHandler(Map<String, String> configOptions) {
         super(SOURCE_TYPE, configOptions);
-        glue = getAwsGlue();
         connectionFactory = new DocDBConnectionFactory();
     }
 
@@ -83,9 +82,8 @@ public class DocDBMetadataHandler extends GlueMetadataHandler implements DoListS
             AmazonAthena athena,
             String spillBucket,
             String spillPrefix,
-            java.util.Map<String, String> configOptions) {
+            Map<String, String> configOptions) {
         super(glue, keyFactory, secretsManager, athena, SOURCE_TYPE, spillBucket, spillPrefix, configOptions);
-        this.glue = glue;
         this.connectionFactory = connectionFactory;
     }
 

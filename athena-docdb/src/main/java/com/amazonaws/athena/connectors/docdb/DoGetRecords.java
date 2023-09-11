@@ -31,7 +31,7 @@ import com.mongodb.client.MongoCollection;
 
 public interface DoGetRecords {
 
-    // This needs to be turned on if the user is using a Glue table and their docdb tables contain cased column names
+    // This needs to be turned on if the user is using a Glue table, and their docdb tables contain cased column names
     String DISABLE_PROJECTION_AND_CASING_ENV = "disable_projection_and_casing";
 
     /**
@@ -39,7 +39,8 @@ public interface DoGetRecords {
      *
      * @see RecordHandler
      */
-    default void readWithConstraint(BlockSpiller spiller, ReadRecordsRequest recordsRequest, Supplier<Boolean> isQueryRunning) throws Exception {
+    @SuppressWarnings({"ConstantValue", "ReassignedVariable"})
+    default void readWithConstraint(BlockSpiller spiller, ReadRecordsRequest recordsRequest, Supplier<Boolean> isQueryRunning) {
         TableName tableNameObj = recordsRequest.getTableName();
         String schemaName = tableNameObj.getSchemaName();
         String tableName = recordsRequest.getSchema().getCustomMetadata().getOrDefault(SOURCE_TABLE_PROPERTY, tableNameObj.getTableName());
@@ -62,7 +63,7 @@ public interface DoGetRecords {
         // insensitive indexes allows for case insensitive projections.
         Document projection = disableProjectionAndCasing ? null : QueryUtils.makeProjection(recordsRequest.getSchema());
 
-        getLogger().info("readWithConstraint: query[{}] projection[{}]", query, projection);
+        getLogger().info("query[{}] projection[{}]", query, projection);
 
         long numRows;
         AtomicLong numResultRows;
@@ -114,18 +115,16 @@ public interface DoGetRecords {
             }
         }
 
-        getLogger().info("readWithConstraint: numRows[{}] numResultRows[{}]", numRows, numResultRows.get());
+        getLogger().info("numRows[{}] numResultRows[{}]", numRows, numResultRows.get());
     }
 
     private Map<String, Object> documentAsMap(Document document, boolean caseInsensitive) {
-        getLogger().info("documentAsMap: caseInsensitive: {}", caseInsensitive);
-        Map<String, Object> documentAsMap = document;
         if (!caseInsensitive) {
-            return documentAsMap;
+            return document;
         }
 
-        TreeMap<String, Object> caseInsensitiveMap = new TreeMap<String, Object>(String.CASE_INSENSITIVE_ORDER);
-        caseInsensitiveMap.putAll(documentAsMap);
+        TreeMap<String, Object> caseInsensitiveMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        caseInsensitiveMap.putAll(document);
         return caseInsensitiveMap;
     }
 

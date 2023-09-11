@@ -42,6 +42,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class SchemaUtilsTest {
 
     @Test
@@ -66,11 +67,12 @@ public class SchemaUtilsTest {
         assertEquals(1, schema.getFields().size());
 
         Map<String, Field> fields = new HashMap<>();
-        schema.getFields().stream().forEach(next -> fields.put(next.getName(), next));
+        schema.getFields().forEach(next -> fields.put(next.getName(), next));
 
         assertEquals(Types.MinorType.VARCHAR, Types.getMinorTypeForArrowType(fields.get("unsupported_col1").getType()));
     }
 
+    @SuppressWarnings("ExtractMethodRecommender")
     @Test
     public void basicMergeTest() {
         List<String> list = new ArrayList<>();
@@ -127,7 +129,7 @@ public class SchemaUtilsTest {
         assertEquals(6, schema.getFields().size());
 
         Map<String, Field> fields = new HashMap<>();
-        schema.getFields().stream().forEach(next -> fields.put(next.getName(), next));
+        schema.getFields().forEach(next -> fields.put(next.getName(), next));
 
         assertEquals(Types.MinorType.INT, Types.getMinorTypeForArrowType(fields.get("col1").getType()));
         assertEquals(Types.MinorType.VARCHAR, Types.getMinorTypeForArrowType(fields.get("col2").getType()));
@@ -142,6 +144,7 @@ public class SchemaUtilsTest {
         assertEquals(Types.MinorType.FLOAT4, Types.getMinorTypeForArrowType(fields.get("col6").getChildren().get(3).getType()));
     }
 
+    @SuppressWarnings("ExtractMethodRecommender")
     @Test
     public void emptyListTest() {
         List<Document> docs = new ArrayList<>();
@@ -177,7 +180,7 @@ public class SchemaUtilsTest {
         assertEquals(4, schema.getFields().size());
 
         Map<String, Field> fields = new HashMap<>();
-        schema.getFields().stream().forEach(next -> fields.put(next.getName(), next));
+        schema.getFields().forEach(next -> fields.put(next.getName(), next));
 
         assertEquals(Types.MinorType.INT, Types.getMinorTypeForArrowType(fields.get("col1").getType()));
         assertEquals(Types.MinorType.VARCHAR, Types.getMinorTypeForArrowType(fields.get("col2").getType()));

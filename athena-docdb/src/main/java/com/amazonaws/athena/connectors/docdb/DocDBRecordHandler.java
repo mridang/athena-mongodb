@@ -73,7 +73,7 @@ public class DocDBRecordHandler extends RecordHandler implements DoGetRecords {
     }
 
     @Override
-    public void readWithConstraint(BlockSpiller spiller, ReadRecordsRequest recordsRequest, QueryStatusChecker queryStatusChecker) throws Exception {
+    public void readWithConstraint(BlockSpiller spiller, ReadRecordsRequest recordsRequest, QueryStatusChecker queryStatusChecker) {
         DoGetRecords.super.readWithConstraint(spiller, recordsRequest, queryStatusChecker::isQueryRunning);
     }
 

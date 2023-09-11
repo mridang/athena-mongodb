@@ -80,7 +80,7 @@ public class DocDBRecordHandlerTest extends RealMongoTest {
 
     private static final Logger logger = LoggerFactory.getLogger(DocDBRecordHandlerTest.class);
     @ClassRule
-    public static LocalStackContainer localStackContainer = new LocalStackContainer(DockerImageName.parse("localstack/localstack:2.2.0-arm64"))
+    public static final LocalStackContainer localStackContainer = new LocalStackContainer(DockerImageName.parse("localstack/localstack:2.2.0-arm64"))
             .withServices(S3, SECRETSMANAGER)
             .waitingFor(new DockerHealthcheckWaitStrategy());
     private final EncryptionKeyFactory keyFactory = new LocalKeyFactory();

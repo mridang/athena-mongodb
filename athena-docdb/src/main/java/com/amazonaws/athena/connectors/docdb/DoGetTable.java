@@ -22,7 +22,7 @@ public interface DoGetTable {
 
     /**
      * If Glue is enabled as a source of supplemental metadata we look up the requested Schema/Table in Glue and
-     * filters out any results that don't have the DOCDB_METADATA_FLAG set. If no matching results were found in Glue,
+     * filter out any results that don't have the DOCDB_METADATA_FLAG set. If no matching results were found in Glue,
      * then we resort to inferring the schema of the DocumentDB collection using SchemaUtils.inferSchema(...). If there
      * is no such table in DocumentDB the operation will fail.
      *
@@ -44,6 +44,7 @@ public interface DoGetTable {
 //                    ex);
 //        }
 
+        //noinspection ConstantValue
         if (schema == null) {
             getLogger().info("Inferring schema for table[{}].", request.getTableName());
             MongoClient client = getOrCreateConn(request);

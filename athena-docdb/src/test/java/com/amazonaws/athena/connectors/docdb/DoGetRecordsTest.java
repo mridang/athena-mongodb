@@ -45,8 +45,9 @@ public class DoGetRecordsTest extends RealMongoTest {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Test
-    public void doTest() throws Exception {
+    public void doTest() {
         MongoClient mongoClient = MongoClients.create("mongodb://localhost:" + mongoDBContainer.getMappedPort(27017));
 
         new FixturesBuilder(mongoClient)

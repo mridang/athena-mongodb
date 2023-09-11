@@ -62,10 +62,12 @@ import com.amazonaws.athena.connector.lambda.domain.predicate.ValueSet;
  */
 public final class QueryUtils {
     private static final String OR_OP = "$or";
+    @SuppressWarnings("unused")
     private static final String AND_OP = "$and";
+    @SuppressWarnings("unused")
     private static final String NOT_OP = "$not";
+    @SuppressWarnings("unused")
     private static final String NOR_OP = "$nor";
-
     private static final String EQ_OP = "$eq";
     private static final String NOT_EQ_OP = "$ne";
     private static final String EXISTS_OP = "$exists";
@@ -74,6 +76,7 @@ public final class QueryUtils {
     private static final String LT_OP = "$lt";
     private static final String LTE_OP = "$lte";
     private static final String IN_OP = "$in";
+    @SuppressWarnings("unused")
     private static final String NOTIN_OP = "$nin";
 
     private QueryUtils() {
@@ -121,6 +124,7 @@ public final class QueryUtils {
      * @param constraint The constraint to apply to the given field.
      * @return A Document describing the constraint for pushing down into DocumentDB.
      */
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     public static Document makePredicate(Field field, ValueSet constraint) {
         String name = field.getName();
 
@@ -196,7 +200,7 @@ public final class QueryUtils {
             }
         }
 
-        // Add back all of the possible single values either as an equality or an IN predicate
+        // Add back all the possible single values either as an equality or an IN predicate
         if (singleValues.size() == 1) {
             disjuncts.add(documentOf(EQ_OP, singleValues.get(0)));
         } else if (singleValues.size() > 1) {

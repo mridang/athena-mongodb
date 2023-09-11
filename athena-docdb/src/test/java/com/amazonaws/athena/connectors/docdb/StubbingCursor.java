@@ -19,56 +19,20 @@
  */
 package com.amazonaws.athena.connectors.docdb;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.Consumer;
 
-import com.mongodb.Function;
 import com.mongodb.ServerAddress;
 import com.mongodb.ServerCursor;
 import com.mongodb.client.MongoCursor;
-import com.mongodb.client.MongoIterable;
 
+@SuppressWarnings("NullableProblems")
 public class StubbingCursor<T>
         implements MongoCursor<T> {
     private final Iterator<T> values;
 
     public StubbingCursor(Iterator<T> result) {
         this.values = result;
-    }
-
-    public static <X> MongoIterable<X> iterate(Collection<X> result) {
-        return new MongoIterable<X>() {
-            @Override
-            public MongoCursor<X> iterator() {
-                return new StubbingCursor<>(result.iterator());
-            }
-
-            @Override
-            public MongoCursor<X> cursor() {
-                return iterator();
-            }
-
-            @Override
-            public X first() {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public <U> MongoIterable<U> map(Function<X, U> function) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public <A extends Collection<? super X>> A into(A objects) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public MongoIterable<X> batchSize(int i) {
-                return this;
-            }
-        };
     }
 
     @Override

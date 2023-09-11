@@ -11,7 +11,6 @@ import org.junit.Test;
 import com.amazonaws.athena.connector.lambda.data.BlockAllocatorImpl;
 import com.amazonaws.athena.connector.lambda.metadata.ListSchemasRequest;
 import com.amazonaws.athena.connector.lambda.metadata.ListSchemasResponse;
-import com.amazonaws.athena.connector.lambda.metadata.MetadataRequest;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
@@ -22,13 +21,7 @@ public class DoListSchemaNamesTest extends RealMongoTest {
         try (MongoClient mongoClient = MongoClients.create("mongodb://localhost:" + mongoDBContainer.getMappedPort(27017))) {
             mongoClient.getDatabase("bravo").getCollection("moo").insertOne(new Document());
 
-            DoListSchemaNames listSchemaNames = new DoListSchemaNames() {
-
-                @Override
-                public MongoClient getOrCreateConn(MetadataRequest request) {
-                    return mongoClient;
-                }
-            };
+            DoListSchemaNames listSchemaNames = request -> mongoClient;
 
             ListSchemasResponse response = new ListSchemasResponse("missing", List.of("admin", "bravo", "config", "local"));
             assertEquals(response, listSchemaNames.doListSchemaNames(new BlockAllocatorImpl(), new ListSchemasRequest(TestBase.IDENTITY, UUID.randomUUID().toString(), "missing")));

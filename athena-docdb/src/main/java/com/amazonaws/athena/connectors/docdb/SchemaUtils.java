@@ -101,7 +101,7 @@ public class SchemaUtils {
                         schemaBuilder.addField(newField);
                     } else if (newType != curType) {
                         //TODO: currently we resolve fields with mixed types by defaulting to VARCHAR. This is _not_ ideal
-                        logger.warn("inferSchema: Encountered a mixed-type field[{}] {} vs {}, defaulting to String.",
+                        logger.warn("Encountered a mixed-type field[{}] {} vs {}, defaulting to String.",
                                 key, curType, newType);
                         schemaBuilder.addStringField(key);
                     } else if (curType == Types.MinorType.LIST) {
@@ -119,7 +119,7 @@ public class SchemaUtils {
             }
             return schema;
         } finally {
-            logger.info("inferSchema: Evaluated {} field values across {} documents.", fieldCount, docCount);
+            logger.info("Evaluated {} field values across {} documents.", fieldCount, docCount);
         }
     }
 
@@ -141,7 +141,7 @@ public class SchemaUtils {
                     .addField(mergeStructField("", curParentField.getChildren().get(0), newParentField.getChildren().get(0))).build();
         } else if (curInnerType != newInnerType) {
             //TODO: currently we resolve fields with mixed types by defaulting to VARCHAR. This is _not_ ideal
-            logger.warn("mergeListField: Encountered a mixed-type list field[{}] {} vs {}, defaulting to String.",
+            logger.warn("Encountered a mixed-type list field[{}] {} vs {}, defaulting to String.",
                     fieldName, curInnerType, newInnerType);
             return FieldBuilder.newBuilder(fieldName, Types.MinorType.LIST.getType()).addStringField("").build();
         }
@@ -177,7 +177,7 @@ public class SchemaUtils {
             if (curType != newType) {
                 //TODO: currently we resolve fields with mixed types by defaulting to VARCHAR. This is _not_ ideal
                 //for various reasons but also because it will cause predicate odities if used in a filter.
-                logger.warn("mergeStructField: Encountered a mixed-type field[{}] {} vs {}, defaulting to String.",
+                logger.warn("Encountered a mixed-type field[{}] {} vs {}, defaulting to String.",
                         nextNew.getName(), newType, curType);
 
                 union.addStringField(nextNew.getName());
@@ -198,6 +198,7 @@ public class SchemaUtils {
      * @param value A value from the key whose type we are attempting to infer.
      * @return The Apache Arrow field definition of the inferred key/value.
      */
+    @SuppressWarnings("ConstantValue")
     private static Field getArrowField(String key, Object value) {
         if (value instanceof String) {
             return new Field(key, FieldType.nullable(Types.MinorType.VARCHAR.getType()), null);
@@ -219,11 +220,11 @@ public class SchemaUtils {
             return new Field(key, FieldType.nullable(Types.MinorType.VARCHAR.getType()), null);
         } else if (value instanceof List) {
             Field child;
-            if (((List) value).isEmpty()) {
-                logger.warn("getArrowType: Encountered an empty List/Array for field[{}], defaulting to List<String> due to type erasure.", key);
+            if (((List<?>) value).isEmpty()) {
+                logger.warn("Encountered an empty List/Array for field[{}], defaulting to List<String> due to type erasure.", key);
                 return FieldBuilder.newBuilder(key, Types.MinorType.LIST.getType()).addStringField("").build();
             } else {
-                child = getArrowField("", ((List) value).get(0));
+                child = getArrowField("", ((List<?>) value).get(0));
             }
             return new Field(key, FieldType.nullable(Types.MinorType.LIST.getType()),
                     Collections.singletonList(child));

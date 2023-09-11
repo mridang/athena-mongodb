@@ -43,6 +43,7 @@ public class TypeUtils {
      * @note This method does only basic coercion today but will likely support more advanced
      * coercions in the future as a way of dealing with schema evolution.
      */
+    @SuppressWarnings("ConstantValue")
     public static Object coerce(Field field, Object origVal) {
         if (origVal == null) {
             return origVal;
@@ -64,14 +65,14 @@ public class TypeUtils {
                 }
             case FLOAT8:
                 if (origVal instanceof Integer) {
-                    return Double.valueOf((int) origVal);
+                    return (double) (int) origVal;
                 } else if (origVal instanceof Float) {
-                    return Double.valueOf((float) origVal);
+                    return (double) (float) origVal;
                 }
                 return origVal;
             case FLOAT4:
                 if (origVal instanceof Integer) {
-                    return Float.valueOf((int) origVal);
+                    return (float) (int) origVal;
                 } else if (origVal instanceof Double) {
                     return ((Double) origVal).floatValue();
                 }

@@ -43,9 +43,9 @@ If you have multi-tenant collections in the form
 The current implementation doesn't
 
 
-5. Implement paritioning
-7. Add support for compression
-8. Rename namespace
+1. Implement paritioning
+2. Add support for compression
+3. Rename namespace
 
 In the event that these are needed, upstream pull-requests are welcomed.
 

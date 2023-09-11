@@ -63,6 +63,7 @@ public class DocDBConnectionFactory {
     /**
      * Runs a 'quick' test on the connection and then returns it if it passes.
      */
+    @SuppressWarnings("SameReturnValue")
     private boolean connectionTest(MongoClient mongoClient) {
         try {
             logger.info("Testing connection to MongoDB");

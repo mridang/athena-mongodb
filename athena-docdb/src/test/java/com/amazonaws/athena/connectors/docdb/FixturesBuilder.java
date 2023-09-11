@@ -22,7 +22,7 @@ public class FixturesBuilder {
         return this;
     }
 
-    public class WithDatabase {
+    public static class WithDatabase {
 
         private final Datastore database;
 
@@ -30,7 +30,7 @@ public class FixturesBuilder {
             this.database = datastore;
         }
 
-        public <T> WithDatabase withCollection(String collectionName, Class<T> klass, Supplier<List<T>> collectionConsumer) {
+        public <T> WithDatabase withCollection(@SuppressWarnings("unused") String collectionName, Class<T> klass, Supplier<List<T>> collectionConsumer) {
             this.database.getCollection(klass).insertMany(collectionConsumer.get());
             return this;
         }
