@@ -2,7 +2,6 @@ package com.amazonaws.athena.connectors.docdb;
 
 import static com.amazonaws.athena.connector.lambda.domain.predicate.Constraints.DEFAULT_NO_LIMIT;
 import static com.amazonaws.athena.connectors.docdb.DocDBMetadataHandler.DOCDB_CONN_STR;
-import static com.amazonaws.athena.connectors.docdb.TestBase.PARTITION_ID;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Collections;
@@ -54,7 +53,7 @@ public class DoGetSplitsTest extends RealMongoTest implements AthenaTest {
             };
 
             Constraints constraints = new Constraints(Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), DEFAULT_NO_LIMIT);
-            Block partition = BlockUtils.newBlock(new BlockAllocatorImpl(), PARTITION_ID, Types.MinorType.INT.getType(), 0);
+            Block partition = BlockUtils.newBlock(new BlockAllocatorImpl(), "partition_id", Types.MinorType.INT.getType(), 0);
             GetSplitsResponse response = new GetSplitsResponse("missing", Set.of(Split.newBuilder(null, fixedKey).add(DOCDB_CONN_STR, mongoDBContainer.getConnectionString()).build()), null);
             GetSplitsRequest request = new GetSplitsRequest(getIdentity(), generateId(), "missing", new TableName("bravo", "moo"), partition, Collections.emptyList(), constraints, null);
             assertEquals(response, getSplits.doGetSplits(new BlockAllocatorImpl(), request));
