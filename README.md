@@ -17,6 +17,7 @@ Other improvements include:
 * Support for the ARM64 architecture as the previous implementation used x86_64.
 * Support for Zstandard and Zlib compression as this requires shared libraries such as libzstd and libgzip to be bundled.
 * Enhanced logging and improved configuration as the previous implementation did not expose tunable sampling parameters
+* Improved startup performance by switching the GC mode. https://aws.amazon.com/blogs/compute/optimizing-aws-lambda-function-performance-for-java/
 
 ## Deploying
 
