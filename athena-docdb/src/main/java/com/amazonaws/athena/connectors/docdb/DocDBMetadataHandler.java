@@ -36,6 +36,10 @@ import com.amazonaws.athena.connector.lambda.metadata.GetSplitsResponse;
 import com.amazonaws.athena.connector.lambda.metadata.GetTableLayoutRequest;
 import com.amazonaws.athena.connector.lambda.metadata.GetTableRequest;
 import com.amazonaws.athena.connector.lambda.metadata.GetTableResponse;
+import com.amazonaws.athena.connector.lambda.metadata.ListSchemasRequest;
+import com.amazonaws.athena.connector.lambda.metadata.ListSchemasResponse;
+import com.amazonaws.athena.connector.lambda.metadata.ListTablesRequest;
+import com.amazonaws.athena.connector.lambda.metadata.ListTablesResponse;
 import com.amazonaws.athena.connector.lambda.metadata.MetadataRequest;
 import com.amazonaws.athena.connector.lambda.metadata.glue.GlueFieldLexer;
 import com.amazonaws.athena.connector.lambda.security.EncryptionKey;
@@ -138,11 +142,6 @@ public class DocDBMetadataHandler extends AbstractMetadataHandler implements DoL
     }
 
     @Override
-    public GetSplitsResponse doGetSplits(BlockAllocator allocator, GetSplitsRequest request) {
-        return DoGetSplits.super.doGetSplits(allocator, request);
-    }
-
-    @Override
     public EncryptionKey makeEncryptionKey() {
         return super.makeEncryptionKey();
     }
@@ -164,4 +163,20 @@ public class DocDBMetadataHandler extends AbstractMetadataHandler implements DoL
     protected GetTableResponse doInferSchema(GetTableRequest tableRequest) throws Exception {
         return DoGetTable.super.doGetTable(tableRequest);
     }
+
+    @Override
+    public ListSchemasResponse doListSchemaNames(BlockAllocator blockAllocator, ListSchemasRequest request) throws Exception {
+        return DoListSchemaNames.super.doListSchemaNames(blockAllocator, request);
+    }
+
+    @Override
+    public ListTablesResponse doListTables(BlockAllocator blockAllocator, ListTablesRequest request) throws Exception {
+        return DoListTableNames.super.doListTables(blockAllocator, request);
+    }
+
+    @Override
+    public GetSplitsResponse doGetSplits(BlockAllocator allocator, GetSplitsRequest request) {
+        return DoGetSplits.super.doGetSplits(allocator, request);
+    }
+
 }

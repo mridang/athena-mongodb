@@ -42,9 +42,29 @@ public interface DoGetTable {
         getLogger().info("Inferring schema for {}.", request.getTableName().getQualifiedTableName());
         MongoClient client = getOrCreateConn(request);
 
-        List<String> collectionNames = Streams.stream(client.getDatabase(request.getTableName().getSchemaName()).listCollectionNames())
-                .filter(collectionName -> getGlobHandler().test(request.getTableName().getTableName(), collectionName))
-                .collect(Collectors.toList());
+        String tableName = request.getTableName().getTableName();
+        String schemaName = request.getTableName().getSchemaName();
+
+        List<String> collectionNames;
+        if (getGlobHandler().isMultiTenant(tableName)) {
+            collectionNames = Streams.stream(client.getDatabase(schemaName).listCollectionNames())
+                    .filter(collectionName -> {
+                        if (getGlobHandler().test(tableName, collectionName)) {
+                            getLogger().info("Collection {} matches requested table {}", collectionName, tableName);
+                            return true;
+                        } else {
+                            getLogger().info("Collection {} doesn't match requested table {}", collectionName, tableName);
+                            return false;
+                        }
+                    })
+                    .collect(Collectors.toList());
+        } else {
+            collectionNames = Streams.stream(client.getDatabase(schemaName).listCollectionNames())
+                    .filter(s -> s.equalsIgnoreCase(tableName))
+                    .collect(Collectors.toList());
+        }
+
+        getLogger().info("Querying collection {}", collectionNames);
 
         SchemaBuilder schema = getSchemaProvider().getSchema(new ChainedMongoCursor(request.getTableName().getSchemaName(), collectionNames, client, new Function<>() {
             @Override

@@ -43,10 +43,10 @@ public class GlobHandler implements Function<String, String>, BiPredicate<String
     @Override
     public boolean test(String tableName, String collectionName) {
         return this.collectionConfigs.stream()
-                .filter(collectionConfig -> collectionConfig.collectionName.equals(tableName))
+                .filter(collectionConfig -> collectionConfig.collectionName.equalsIgnoreCase(tableName))
                 .findFirst()
                 .map(collectionConfig -> collectionConfig.test(collectionName))
-                .orElse(true);
+                .orElse(false);
     }
 
     public Collection<String> getFields(String tableName) {
@@ -55,6 +55,16 @@ public class GlobHandler implements Function<String, String>, BiPredicate<String
                 .findFirst()
                 .map(collectionConfig -> collectionConfig.inferredFields)
                 .orElse(Collections.emptySet());
+    }
+
+    public boolean isMultiTenant(String tableName) {
+        if (this.collectionConfigs.stream().anyMatch(collectionConfig -> collectionConfig.test(tableName))) {
+            logger.info("Table {} is a multi-tenant collection", tableName);
+            return true;
+        } else {
+            logger.info("Table {} is not a multi-tenant collection", tableName);
+            return false;
+        }
     }
 
     private static class CollectionConfig implements Predicate<String> {
@@ -66,17 +76,23 @@ public class GlobHandler implements Function<String, String>, BiPredicate<String
 
         private CollectionConfig(String pattern) {
             this.collectionName = pattern.replaceAll("\\{\\{(.*?)}}", "$1");
-            this.globPattern = Pattern.compile("^" + pattern.replaceAll("\\{\\{(.*?)}}", "(?<$1>[a-zA-Z0-9]*?)") + "$");
+            this.globPattern = Pattern.compile("^" + pattern.replaceAll("\\{\\{(.*?)}}", "(?<$1>[a-zA-Z0-9]*?)") + "$", Pattern.CASE_INSENSITIVE);
             this.inferredFields = Pattern.compile("\\{\\{(.*?)}}").matcher(pattern)
                     .results()
                     .map(matchResult -> matchResult.group(1))
                     .collect(Collectors.toSet());
-            logger.info("Matching {} to regex {}", collectionName, globPattern);
+            logger.debug("Matching {} to regex {}", collectionName, globPattern);
         }
 
         @Override
         public boolean test(String s) {
-            return this.globPattern.matcher(s).matches();
+            if (this.globPattern.matcher(s).matches()) {
+                logger.debug("Collection {} matches {}", s, globPattern);
+                return true;
+            } else {
+                logger.debug("Collection {} does not match {}", s, globPattern);
+                return false;
+            }
         }
     }
 }

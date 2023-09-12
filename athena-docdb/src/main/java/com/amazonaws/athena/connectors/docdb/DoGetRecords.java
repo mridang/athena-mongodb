@@ -68,13 +68,27 @@ public interface DoGetRecords {
         long numRows;
         AtomicLong numResultRows;
 
-        System.out.println(schemaName);
-        System.out.println(client.getDatabase(schemaName).listCollectionNames().first());
-        System.out.println("------");
+        List<String> collectionNames;
+        if (getGlobHandler().isMultiTenant(tableName)) {
+            collectionNames = Streams.stream(client.getDatabase(schemaName).listCollectionNames())
+                    .filter(collectionName -> {
+                        if (getGlobHandler().test(tableName, collectionName)) {
+                            getLogger().info("Collection {} matches requested table {}", collectionName, tableName);
+                            return true;
+                        } else {
+                            getLogger().info("Collection {} doesn't match requested table {}", collectionName, tableName);
+                            return false;
+                        }
+                    })
+                    .collect(Collectors.toList());
+        } else {
+            collectionNames = Streams.stream(client.getDatabase(schemaName).listCollectionNames())
+                    .filter(s -> s.equalsIgnoreCase(tableName))
+                    .collect(Collectors.toList());
+        }
 
-        List<String> collectionNames = Streams.stream(client.getDatabase(schemaName).listCollectionNames())
-                .filter(collectionName -> getGlobHandler().test(tableName, collectionName))
-                .collect(Collectors.toList());
+        getLogger().info("Querying collection {}", collectionNames);
+
         try (ChainedMongoCursor iterable = new ChainedMongoCursor(schemaName, collectionNames, client, new Function<>() {
             @Override
             public @NotNull FindIterable<Document> apply(@NotNull MongoCollection<Document> mongoCollection) {
