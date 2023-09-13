@@ -61,6 +61,10 @@ Resources:
     Properties:
       Environment:
         Variables:
+          JAVA_TOOL_OPTIONS: --add-opens=java.base/java.nio=ALL-UNNAMED -XX:+TieredCompilation -XX:TieredStopAtLevel=1
+          SCHEMA_INFERENCE_NUM_DOCS: 100
+          ATHENA_FEDERATION_SDK_LOG_LEVEL: info
+          GLOB_PATTERN: ''
           disable_spill_encryption: !Ref DisableSpillEncryption
           spill_bucket: !Ref SpillBucket
           spill_prefix: !Ref SpillPrefix
