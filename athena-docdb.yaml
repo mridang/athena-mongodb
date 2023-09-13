@@ -61,6 +61,10 @@ Resources:
     Properties:
       Environment:
         Variables:
+          JAVA_TOOL_OPTIONS: --add-opens=java.base/java.nio=ALL-UNNAMED -XX:+TieredCompilation -XX:TieredStopAtLevel=1
+          SCHEMA_INFERENCE_NUM_DOCS: 100
+          ATHENA_FEDERATION_SDK_LOG_LEVEL: info
+          GLOB_PATTERN: ''
           disable_spill_encryption: !Ref DisableSpillEncryption
           spill_bucket: !Ref SpillBucket
           spill_prefix: !Ref SpillPrefix
@@ -69,7 +73,7 @@ Resources:
       Handler: "com.amazonaws.athena.connectors.docdb.DocDBCompositeHandler"
       CodeUri: "./target/athena-docdb-2023.35.2.jar"
       Description: "Enables Amazon Athena to communicate with DocumentDB, making your DocumentDB data accessible via SQL."
-      Runtime: java11
+      Runtime: java17
       Timeout: !Ref LambdaTimeout
       MemorySize: !Ref LambdaMemory
       PermissionsBoundary: !If [ HasPermissionsBoundary, !Ref PermissionsBoundaryARN, !Ref "AWS::NoValue" ]
