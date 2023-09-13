@@ -69,7 +69,7 @@ Resources:
       Handler: "com.amazonaws.athena.connectors.docdb.DocDBCompositeHandler"
       CodeUri: "./target/athena-docdb-2023.35.2.jar"
       Description: "Enables Amazon Athena to communicate with DocumentDB, making your DocumentDB data accessible via SQL."
-      Runtime: java11
+      Runtime: java17
       Timeout: !Ref LambdaTimeout
       MemorySize: !Ref LambdaMemory
       PermissionsBoundary: !If [ HasPermissionsBoundary, !Ref PermissionsBoundaryARN, !Ref "AWS::NoValue" ]
