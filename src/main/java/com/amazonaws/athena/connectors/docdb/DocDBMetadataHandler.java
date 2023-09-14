@@ -121,6 +121,7 @@ public class DocDBMetadataHandler extends AbstractMetadataHandler implements DoL
      * Retrieves the DocDB connection details from an env variable matching the catalog name, if no such
      * env variable exists we fall back to the default env variable defined by DEFAULT_DOCDB.
      */
+    @Override
     public String getConnStr(MetadataRequest request) {
         String conStr = configOptions.get(request.getCatalogName());
         if (conStr == null) {

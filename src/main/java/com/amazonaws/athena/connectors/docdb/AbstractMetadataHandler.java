@@ -41,6 +41,7 @@ public abstract class AbstractMetadataHandler extends GlueMetadataHandler {
      *
      * @see GlueMetadataHandler
      */
+    @Override
     public GetTableResponse doGetTable(@SuppressWarnings("unused") BlockAllocator blockAllocator, GetTableRequest request) throws Exception {
         logger.info("Getting table {}", request.getTableName().getQualifiedTableName());
         try {

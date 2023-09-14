@@ -189,6 +189,7 @@ public class DefaultSchemaProvider implements SchemaProvider {
      * @param documentIterator   The iterator with the sample of records
      * @return An Apache Arrow Schema representing the schema of the HBase table.
      */
+    @Override
     public SchemaBuilder getSchema(CloseableIterator<Document> documentIterator) {
         int docCount = 0;
         int fieldCount = 0;

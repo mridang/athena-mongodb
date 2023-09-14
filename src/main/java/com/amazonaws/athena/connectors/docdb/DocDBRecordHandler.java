@@ -99,6 +99,7 @@ public class DocDBRecordHandler extends RecordHandler implements DoGetRecords {
      * @param split The split to that we need to read and this DocDB instance to connector.
      * @return A MongoClient connected to the request DB instance.
      */
+    @Override
     public MongoClient getOrCreateConn(Split split) {
         String conStr = split.getProperty(DOCDB_CONN_STR);
         if (conStr == null) {
