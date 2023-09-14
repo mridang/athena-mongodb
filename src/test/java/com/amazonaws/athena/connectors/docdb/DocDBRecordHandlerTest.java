@@ -77,7 +77,7 @@ import com.mongodb.client.MongoClients;
 public class DocDBRecordHandlerTest extends RealMongoTest implements AthenaTest {
 
     @ClassRule
-    public static final LocalStackContainer localStackContainer = new LocalStackContainer(DockerImageName.parse("localstack/localstack:2.2.0-arm64"))
+    public static final LocalStackContainer localStackContainer = new LocalStackContainer(DockerImageName.parse("localstack/localstack:2.2.0"))
             .withServices(S3, SECRETSMANAGER)
             .waitingFor(new DockerHealthcheckWaitStrategy());
     private static final Logger logger = LoggerFactory.getLogger(DocDBRecordHandlerTest.class);
@@ -90,6 +90,7 @@ public class DocDBRecordHandlerTest extends RealMongoTest implements AthenaTest 
 
     @Before
     public void setUp() {
+        System.out.println(System.getProperty ("os.arch"));
         schemaForRead = SchemaBuilder.newBuilder()
                 .addField("col1", new ArrowType.Int(32, true))
                 .addField("col2", new ArrowType.Utf8())
