@@ -124,7 +124,7 @@ public final class QueryUtils {
      * @param constraint The constraint to apply to the given field.
      * @return A Document describing the constraint for pushing down into DocumentDB.
      */
-    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection", "ModifiedButNotUsed"})
     public static Document makePredicate(Field field, ValueSet constraint) {
         String name = field.getName();
 

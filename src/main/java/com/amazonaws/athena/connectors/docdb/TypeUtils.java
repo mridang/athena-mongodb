@@ -31,6 +31,7 @@ import org.bson.types.ObjectId;
 /**
  * Helper class with useful methods for type conversion and coercion.
  */
+@SuppressWarnings("JavaUtilDate")
 public class TypeUtils {
     private TypeUtils() {}
 
