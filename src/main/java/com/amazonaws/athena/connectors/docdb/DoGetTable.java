@@ -1,6 +1,7 @@
 package com.amazonaws.athena.connectors.docdb;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -16,9 +17,9 @@ import com.amazonaws.athena.connector.lambda.metadata.MetadataRequest;
 import com.amazonaws.athena.connectors.docdb.schema.SchemaProvider;
 import com.google.common.collect.Streams;
 import com.mongodb.Function;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoIterable;
 
 public interface DoGetTable {
 
@@ -68,10 +69,19 @@ public interface DoGetTable {
 
         SchemaBuilder schema = getSchemaProvider().getSchema(new ChainedMongoCursor(request.getTableName().getSchemaName(), collectionNames, client, new Function<>() {
             @Override
-            public @NotNull FindIterable<Document> apply(@NotNull MongoCollection<Document> mongoCollection) {
+            public @NotNull MongoIterable<Document> apply(@NotNull MongoCollection<Document> mongoCollection) {
+                Map<String, String> allFields = getGlobHandler().parseFields(mongoCollection.getNamespace().getCollectionName());
+
                 return mongoCollection.find()
                         .batchSize(SCHEMA_INFERENCE_NUM_DOCS)
-                        .limit(SCHEMA_INFERENCE_NUM_DOCS);
+                        .limit(SCHEMA_INFERENCE_NUM_DOCS)
+                        .map(new Function<>() {
+                            @Override
+                            public @NotNull Document apply(@NotNull Document document) {
+                                document.putAll(allFields);
+                                return document;
+                            }
+                        });
             }
         }));
 

@@ -75,7 +75,10 @@ test {
     }
     maxParallelForks = (int) (Runtime.runtime.availableProcessors() / 2 + 1)
     finalizedBy jacocoTestReport // report is always generated after tests run
-    jvmArgs '--add-opens=java.base/java.nio=ALL-UNNAMED'
+    jvmArgs(
+            "--add-opens", "java.base/java.nio=ALL-UNNAMED",
+            "--add-opens", "java.base/java.util.regex=ALL-UNNAMED"
+    )
 }
 
 jacocoTestReport {
