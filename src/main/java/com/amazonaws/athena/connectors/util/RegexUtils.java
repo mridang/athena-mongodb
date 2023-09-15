@@ -8,8 +8,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * Utility class to work with regular-expressions and help overcome the limitations
+ * in the java.util.regex package.
+ *
+ * @author mridang
+ */
 public class RegexUtils {
-
 
     private static final Method namedGroups;
     static {
@@ -29,6 +34,19 @@ public class RegexUtils {
         return getGroups(Pattern.compile(pattern), text);
     }
 
+    /**
+     * Helper method that allows you to get extract all matches from a string keyed by
+     * the name of the capturing group.
+     *
+     * This method relies on reflection to extract the list of the named groups. This
+     * has been added in Java 20
+     *
+     * <a href="https://download.java.net/java/early_access/valhalla/docs/api/java.base/java/util/regex/Pattern.html#namedGroups()">...</a>
+     *
+     * @param pattern the regular expression pattern to use
+     * @param text the text that should be matched
+     * @return a map matches from a string keyed by the name of the capturing group.
+     */
     @SuppressWarnings("unchecked")
     public static Map<String, String> getGroups(Pattern pattern, String text) {
         try {
