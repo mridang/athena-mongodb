@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import com.amazonaws.athena.connectors.util.CloseableLazyIteratorChain;
 import com.mongodb.Function;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -21,9 +20,9 @@ public class ChainedMongoCursor extends CloseableLazyIteratorChain<Document> {
     private static final Logger logger = LoggerFactory.getLogger(ChainedMongoCursor.class);
     private final MongoDatabase mongoDatabase;
     private final List<String> collectionList;
-    private final Function<MongoCollection<Document>, FindIterable<Document>> collectionFunction;
+    private final Function<MongoCollection<Document>, MongoIterable<Document>> collectionFunction;
 
-    public ChainedMongoCursor(String databaseName, List<String> collectionList, MongoClient client, Function<MongoCollection<Document>, FindIterable<Document>> collectionFunction) {
+    public ChainedMongoCursor(String databaseName, List<String> collectionList, MongoClient client, Function<MongoCollection<Document>, MongoIterable<Document>> collectionFunction) {
         this.collectionFunction = collectionFunction;
         this.mongoDatabase = client.getDatabase(databaseName);
         this.collectionList = collectionList;

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiPredicate;
@@ -14,6 +15,8 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.amazonaws.athena.connectors.util.RegexUtils;
 
 public class GlobHandler implements Function<String, String>, BiPredicate<String, String> {
 
@@ -67,6 +70,13 @@ public class GlobHandler implements Function<String, String>, BiPredicate<String
         }
     }
 
+    public Map<String, String> parseFields(String tableName) {
+        return this.collectionConfigs.stream()
+                .filter(collectionConfig -> collectionConfig.test(tableName))
+                .findFirst()
+                .map(collectionConfig -> collectionConfig.parseFields(tableName)).orElse(Collections.emptyMap());
+    }
+
     private static class CollectionConfig implements Predicate<String> {
 
         private static final Logger logger = LoggerFactory.getLogger(CollectionConfig.class);
@@ -93,6 +103,10 @@ public class GlobHandler implements Function<String, String>, BiPredicate<String
                 logger.debug("Collection {} does not match {}", s, globPattern);
                 return false;
             }
+        }
+
+        public Map<String, String> parseFields(String tableName) {
+            return RegexUtils.getGroups(this.globPattern, tableName);
         }
     }
 }

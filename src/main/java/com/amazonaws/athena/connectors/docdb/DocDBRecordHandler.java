@@ -92,7 +92,7 @@ public class DocDBRecordHandler extends RecordHandler implements DoGetRecords {
     /**
      * Gets the special DOCDB_CONN_STR property from the provided split and uses
      * its contents to getOrCreate a MongoDB client connection.
-     *
+     * <p>
      * This method attempts to resolve any SecretsManager secrets that are
      * using in the connection string and denoted by ${secret_name}.
      *
