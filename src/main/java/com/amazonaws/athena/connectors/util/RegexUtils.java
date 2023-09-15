@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 public class RegexUtils {
 
     private static final Method namedGroups;
+
     static {
         try {
             namedGroups = Pattern.class.getDeclaredMethod("namedGroups");
@@ -37,14 +38,14 @@ public class RegexUtils {
     /**
      * Helper method that allows you to get extract all matches from a string keyed by
      * the name of the capturing group.
-     *
+     * <p>
      * This method relies on reflection to extract the list of the named groups. This
      * has been added in Java 20
      *
      * <a href="https://download.java.net/java/early_access/valhalla/docs/api/java.base/java/util/regex/Pattern.html#namedGroups()">...</a>
      *
      * @param pattern the regular expression pattern to use
-     * @param text the text that should be matched
+     * @param text    the text that should be matched
      * @return a map matches from a string keyed by the name of the capturing group.
      */
     @SuppressWarnings("unchecked")
