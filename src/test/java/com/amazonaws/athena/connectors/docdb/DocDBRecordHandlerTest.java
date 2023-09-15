@@ -66,7 +66,6 @@ import com.amazonaws.athena.connectors.docdb.DoGetRecordsTest.PersonEntity;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.athena.AmazonAthenaClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
@@ -90,7 +89,6 @@ public class DocDBRecordHandlerTest extends RealMongoTest implements AthenaTest 
 
     @Before
     public void setUp() {
-        System.out.println(System.getProperty ("os.arch"));
         schemaForRead = SchemaBuilder.newBuilder()
                 .addField("col1", new ArrowType.Int(32, true))
                 .addField("col2", new ArrowType.Utf8())
@@ -128,7 +126,7 @@ public class DocDBRecordHandlerTest extends RealMongoTest implements AthenaTest 
                 )
                 .build();
 
-        handler = new DocDBRecordHandler(s3, secretsManager, AmazonAthenaClientBuilder.defaultClient(), new DocDBConnectionFactory(), Collections.emptyMap());
+        handler = new DocDBRecordHandler(s3, secretsManager, null, new DocDBConnectionFactory(), Collections.emptyMap());
         spillReader = new S3BlockSpillReader(s3, blockAllocator);
     }
 
