@@ -37,7 +37,7 @@ public class TypeUtils {
 
     /**
      * Allows for coercing types in the event that schema has evolved or there were other data issues.
-     *
+     * <p>
      * This method does only basic coercion today but will likely support more
      * advanced coercions in the future as a way of dealing with schema evolution.
      *

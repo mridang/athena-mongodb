@@ -176,7 +176,7 @@ public class DefaultSchemaProvider implements SchemaProvider {
      * This method will produce an Apache Arrow Schema for the given TableName
      * and DocumentDB connection by scanning up to the requested number of
      * rows and using basic schema inference to determine data types.
-     *
+     * <p>
      * The resulting schema is a union of the schema of every row that is
      * scanned. Presently, the code does not attempt to resolve conflicts if
      * unique field has different types across documents. It is recommended
@@ -184,9 +184,9 @@ public class DefaultSchemaProvider implements SchemaProvider {
      * conflicts. In the future, we may enhance this method to use a reasonable
      * default (like String) and coerce heterogeneous fields to avoid query failure,
      * but forcing
-    explicit handling by defining Schema in AWS Glue is likely a better approach.
+     * explicit handling by defining Schema in AWS Glue is likely a better approach.
      *
-     * @param documentIterator   The iterator with the sample of records
+     * @param documentIterator The iterator with the sample of records
      * @return An Apache Arrow Schema representing the schema of the HBase table.
      */
     @Override

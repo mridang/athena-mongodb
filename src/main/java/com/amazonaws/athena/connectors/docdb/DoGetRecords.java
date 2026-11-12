@@ -25,9 +25,9 @@ import com.amazonaws.athena.connector.lambda.handlers.RecordHandler;
 import com.amazonaws.athena.connector.lambda.records.ReadRecordsRequest;
 import com.google.common.collect.Streams;
 import com.mongodb.Function;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoIterable;
 
 public interface DoGetRecords {
 
@@ -91,8 +91,17 @@ public interface DoGetRecords {
 
         try (ChainedMongoCursor iterable = new ChainedMongoCursor(schemaName, collectionNames, client, new Function<>() {
             @Override
-            public @NotNull FindIterable<Document> apply(@NotNull MongoCollection<Document> mongoCollection) {
-                return mongoCollection.find(query).projection(projection).batchSize(getBatchSize());
+            public @NotNull MongoIterable<Document> apply(@NotNull MongoCollection<Document> mongoCollection) {
+                Map<String, String> allFields = getGlobHandler().parseFields(mongoCollection.getNamespace().getCollectionName());
+                return mongoCollection.find(query)
+                        .projection(projection).batchSize(getBatchSize())
+                        .map(new Function<>() {
+                            @Override
+                            public @NotNull Document apply(@NotNull Document document) {
+                                document.putAll(allFields);
+                                return document;
+                            }
+                        });
             }
         })) {
             numRows = 0;
@@ -107,13 +116,8 @@ public interface DoGetRecords {
                         Types.MinorType fieldType = Types.getMinorTypeForArrowType(nextField.getType());
                         try {
                             switch (fieldType) {
-                                case LIST:
-                                case STRUCT:
-                                    matched &= block.offerComplexValue(nextField.getName(), rowNum, DEFAULT_FIELD_RESOLVER, value);
-                                    break;
-                                default:
-                                    matched &= block.offerValue(nextField.getName(), rowNum, value);
-                                    break;
+                                case LIST, STRUCT -> matched &= block.offerComplexValue(nextField.getName(), rowNum, DEFAULT_FIELD_RESOLVER, value);
+                                default -> matched &= block.offerValue(nextField.getName(), rowNum, value);
                             }
                             if (!matched) {
                                 return 0;
